@@ -1,0 +1,109 @@
+<div class="scan-history-container">
+    <!-- Header -->
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Historial de Escaneos</h1>
+        <div class="spacer"></div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-section">
+        <div class="stat-card">
+            <mat-icon>qr_code_scanner</mat-icon>
+            <div class="stat-content">
+                <span class="stat-value">{{ totalScans }}</span>
+                <span class="stat-label">Total</span>
+            </div>
+        </div>
+        <div class="stat-card valid">
+            <mat-icon>check_circle</mat-icon>
+            <div class="stat-content">
+                <span class="stat-value">{{ validScans }}</span>
+                <span class="stat-label">Válidos</span>
+            </div>
+        </div>
+        <div class="stat-card duplicate">
+            <mat-icon>warning</mat-icon>
+            <div class="stat-content">
+                <span class="stat-value">{{ duplicateScans }}</span>
+                <span class="stat-label">Duplicados</span>
+            </div>
+        </div>
+        <div class="stat-card invalid">
+            <mat-icon>cancel</mat-icon>
+            <div class="stat-content">
+                <span class="stat-value">{{ invalidScans }}</span>
+                <span class="stat-label">Inválidos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="controls-section">
+        <div class="filters">
+            <button mat-stroked-button [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
+                Todos
+            </button>
+            <button mat-stroked-button [class.active]="activeFilter === 'VALID'" (click)="setFilter('VALID')">
+                Válidos
+            </button>
+            <button mat-stroked-button [class.active]="activeFilter === 'DUPLICATE'" (click)="setFilter('DUPLICATE')">
+                Duplicados
+            </button>
+            <button mat-stroked-button [class.active]="activeFilter === 'INVALID'" (click)="setFilter('INVALID')">
+                Inválidos
+            </button>
+        </div>
+
+        <mat-form-field class="search-field">
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput placeholder="Buscar por nombre o QR..." [(ngModel)]="searchTerm"
+                (ngModelChange)="onSearchChange()">
+        </mat-form-field>
+    </div>
+
+    <!-- Scan List -->
+    <div class="scan-list" *ngIf="filteredScans.length > 0">
+        <div class="scan-item" *ngFor="let scan of filteredScans" [ngClass]="getStatusClass(scan.status)">
+            <mat-icon class="status-icon">{{ getStatusIcon(scan.status) }}</mat-icon>
+
+            <div class="scan-info">
+                <div class="scan-header">
+                    <span class="guest-name">{{ scan.guestName || 'QR Inválido' }}</span>
+                    <span class="scan-time">{{ formatTime(scan.scannedAt) }}</span>
+                </div>
+                <div class="scan-details">
+                    <span class="guest-count" *ngIf="scan.guestCount">
+                        <mat-icon>people</mat-icon>
+                        {{ scan.guestCount }} {{ scan.guestCount === 1 ? 'persona' : 'personas' }}
+                    </span>
+                    <span class="scan-date">{{ formatDateTime(scan.scannedAt) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredScans.length === 0">
+        <mat-icon>inbox</mat-icon>
+        <h2>No hay escaneos</h2>
+        <p *ngIf="searchTerm">No se encontraron resultados para "{{ searchTerm }}"</p>
+        <p *ngIf="!searchTerm && activeFilter !== 'ALL'">No hay escaneos con este filtro</p>
+        <p *ngIf="!searchTerm && activeFilter === 'ALL'">Aún no se han realizado escaneos</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-section">
+        <button mat-raised-button color="primary" (click)="exportToCSV()" [disabled]="filteredScans.length === 0">
+            <mat-icon>download</mat-icon>
+            Exportar CSV
+        </button>
+
+        <button mat-stroked-button color="warn" (click)="clearHistory()" [disabled]="allScans.length === 0">
+            <mat-icon>delete</mat-icon>
+            Limpiar Historial
+        </button>
+    </div>
+</div>

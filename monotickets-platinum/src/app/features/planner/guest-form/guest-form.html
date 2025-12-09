@@ -1,0 +1,65 @@
+<div class="form-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>{{ isEditMode ? 'Editar Invitado' : 'Agregar Invitado' }}</h1>
+    </div>
+
+    <mat-card>
+        @if (loading && isEditMode) {
+        <div class="loading-container">
+            <mat-spinner></mat-spinner>
+            <p>Cargando invitado...</p>
+        </div>
+        } @else {
+        <form [formGroup]="guestForm" (ngSubmit)="onSubmit()">
+            <div class="form-grid">
+                <mat-form-field class="full-width">
+                    <mat-label>Nombre Completo</mat-label>
+                    <input matInput formControlName="fullName" placeholder="Ej: Juan Pérez García">
+                    @if (guestForm.get('fullName')?.hasError('required') && guestForm.get('fullName')?.touched) {
+                    <mat-error>El nombre es requerido</mat-error>
+                    }
+                    @if (guestForm.get('fullName')?.hasError('minlength')) {
+                    <mat-error>Mínimo 3 caracteres</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Teléfono</mat-label>
+                    <input matInput formControlName="phone" placeholder="5512345678" maxlength="10">
+                    @if (guestForm.get('phone')?.hasError('required') && guestForm.get('phone')?.touched) {
+                    <mat-error>El teléfono es requerido</mat-error>
+                    }
+                    @if (guestForm.get('phone')?.hasError('pattern')) {
+                    <mat-error>Debe ser 10 dígitos</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Email (opcional)</mat-label>
+                    <input matInput formControlName="email" type="email" placeholder="ejemplo@correo.com">
+                    @if (guestForm.get('email')?.hasError('email')) {
+                    <mat-error>Email inválido</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field class="full-width">
+                    <mat-label>Notas (opcional)</mat-label>
+                    <textarea matInput formControlName="notes" rows="3" placeholder="Notas adicionales"></textarea>
+                </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+                <button mat-stroked-button type="button" (click)="goBack()" [disabled]="loading">
+                    Cancelar
+                </button>
+                <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+                    {{ isEditMode ? 'Guardar' : 'Crear' }}
+                </button>
+            </div>
+        </form>
+        }
+    </mat-card>
+</div>

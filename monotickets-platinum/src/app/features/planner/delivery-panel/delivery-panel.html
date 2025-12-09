@@ -1,0 +1,137 @@
+<div class="delivery-panel">
+    <div class="header">
+        <h2>
+            <mat-icon>send</mat-icon>
+            Panel de Envío de Invitaciones
+        </h2>
+        <button mat-icon-button (click)="close()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="stat-card">
+            <mat-icon>email</mat-icon>
+            <div class="stat-content">
+                <span class="stat-value">{{ stats.total }}</span>
+                <span class="stat-label">Total</span>
+            </div>
+        </div>
+        <div class="stat-card success">
+            <mat-icon>check_circle</mat-icon>
+            <div class="stat-content">
+                <span class="stat-value">{{ stats.sent }}</span>
+                <span class="stat-label">Enviados</span>
+            </div>
+        </div>
+        <div class="stat-card warning">
+            <mat-icon>schedule</mat-icon>
+            <div class="stat-content">
+                <span class="stat-value">{{ stats.pending }}</span>
+                <span class="stat-label">Pendientes</span>
+            </div>
+        </div>
+        <div class="stat-card error">
+            <mat-icon>error</mat-icon>
+            <div class="stat-content">
+                <span class="stat-value">{{ stats.failed }}</span>
+                <span class="stat-label">Fallidos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-section">
+        <mat-form-field appearance="outline" class="method-selector">
+            <mat-label>Método de Envío</mat-label>
+            <mat-select [(ngModel)]="selectedMethod">
+                <mat-option value="WHATSAPP">
+                    <mat-icon>chat</mat-icon>
+                    WhatsApp (Recomendado)
+                </mat-option>
+                <mat-option value="SMS">
+                    <mat-icon>sms</mat-icon>
+                    SMS
+                </mat-option>
+                <mat-option value="EMAIL">
+                    <mat-icon>email</mat-icon>
+                    Email
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" (click)="sendInvitations()"
+            [disabled]="sending || data.invitationIds.length === 0">
+            <mat-icon>send</mat-icon>
+            {{ sending ? 'Enviando...' : 'Enviar Invitaciones' }}
+        </button>
+        <span class="selection-info">{{ data.invitationIds.length }} invitaciones seleccionadas</span>
+    </div>
+
+    <!-- Delivery Attempts Table -->
+    <div class="table-section">
+        <h3>Resultados del Envío</h3>
+
+        <div class="loading-container" *ngIf="loading">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Cargando resultados...</p>
+        </div>
+
+        <table mat-table [dataSource]="attempts" *ngIf="!loading && attempts.length > 0">
+            <!-- QR Token Column -->
+            <ng-container matColumnDef="qrToken">
+                <th mat-header-cell *matHeaderCellDef>Código</th>
+                <td mat-cell *matCellDef="let attempt">{{ attempt.qrToken.substring(0, 8) }}...</td>
+            </ng-container>
+
+            <!-- Method Column -->
+            <ng-container matColumnDef="method">
+                <th mat-header-cell *matHeaderCellDef>Método</th>
+                <td mat-cell *matCellDef="let attempt">
+                    <mat-chip [class]="'chip-' + attempt.method.toLowerCase()">
+                        <mat-icon>{{ getMethodIcon(attempt.method) }}</mat-icon>
+                        {{ attempt.method }}
+                    </mat-chip>
+                </td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Estado</th>
+                <td mat-cell *matCellDef="let attempt">
+                    <mat-chip [class]="'chip-' + getStatusColor(attempt.status)">
+                        <mat-icon>{{ getStatusIcon(attempt.status) }}</mat-icon>
+                        {{ attempt.status }}
+                    </mat-chip>
+                </td>
+            </ng-container>
+
+            <!-- Attempts Column -->
+            <ng-container matColumnDef="attempts">
+                <th mat-header-cell *matHeaderCellDef>Intentos</th>
+                <td mat-cell *matCellDef="let attempt">{{ attempt.attempts }}</td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                <td mat-cell *matCellDef="let attempt">
+                    <button mat-icon-button *ngIf="attempt.status === 'FAILED'"
+                        (click)="retryDelivery(attempt.invitationId)" matTooltip="Reintentar envío">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <div class="empty-state" *ngIf="!loading && attempts.length === 0">
+            <mat-icon>inbox</mat-icon>
+            <p>No hay envíos registrados</p>
+            <p class="hint">Haz clic en "Enviar Invitaciones" para comenzar</p>
+        </div>
+    </div>
+</div>

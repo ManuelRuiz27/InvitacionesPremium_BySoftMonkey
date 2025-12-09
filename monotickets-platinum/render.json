@@ -1,0 +1,12 @@
+{
+    "build": {
+        "command": "npm install && npm run build",
+        "publish": "dist/monotickets-platinum/browser"
+    },
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/index.html"
+        }
+    ]
+}

@@ -1,0 +1,405 @@
+// ===================================================================
+// 🎨 MONOTICKETS PLATINUM - DESIGN SYSTEM
+// ===================================================================
+// Sistema de diseño centralizado con CSS variables
+// Versión: 2.0.0
+// Fecha: 2025-12-05
+// ===================================================================
+
+:root {
+    // ===== PALETA DE COLORES MONOTICKETS =====
+
+    // Colores principales (SÓLIDOS - sin gradientes)
+    --mono-navy: #0D1B2A;
+    --mono-navy-light: #1a2f47;
+    --mono-navy-lighter: #2a4563;
+    --mono-cyan: #4BA3FF;
+    --mono-cyan-light: #6bb8ff;
+    --mono-cyan-lighter: #8bc9ff;
+    --mono-white: #FFFFFF;
+    --mono-gray-light: #B0B0B0;
+    --mono-gray-neutral: #E0E0E0;
+    --mono-gray-dark: #6b7280;
+
+    // Dark Mode (Azul Marino como base)
+    --mono-bg-dark: #0D1B2A;
+    --mono-bg-dark-elevated: #1a2f47;
+    --mono-bg-dark-card: #2a4563;
+    --mono-text-on-dark: #FFFFFF;
+    --mono-text-secondary-dark: #B0B0B0;
+
+    // Light Mode
+    --mono-bg-light: #FFFFFF;
+    --mono-bg-light-secondary: #f9fafb;
+    --mono-text-on-light: #0D1B2A;
+    --mono-text-secondary-light: #6b7280;
+
+    // Estados (success, error, warning, info)
+    --color-success: #10b981;
+    --color-success-light: #34d399;
+    --color-error: #ef4444;
+    --color-error-light: #f87171;
+    --color-warning: #f59e0b;
+    --color-warning-light: #fbbf24;
+    --color-info: #4BA3FF;
+    --color-info-light: #6bb8ff;
+
+    // ===== TIPOGRAFÍA =====
+
+    // Familias de fuentes
+    --font-heading: 'Montserrat', sans-serif;
+    --font-subheading: 'Poppins', sans-serif;
+    --font-body: 'Inter', 'Roboto', sans-serif;
+
+    // Escala tipográfica (basada en 16px base)
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-lg: 18px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 28px;
+    --text-4xl: 32px;
+    --text-5xl: 48px;
+    --text-6xl: 56px;
+
+    // Pesos de fuente
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --font-extrabold: 800;
+
+    // Line heights
+    --leading-tight: 1.25;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.75;
+
+    // ===== ESPACIADO (escala 4px) =====
+
+    --space-0: 0;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+    --space-24: 96px;
+
+    // ===== BORDES =====
+
+    // Border radius (16px estándar corporativo)
+    --radius-none: 0;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px; // Estándar Monotickets
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+
+    // Border width
+    --border-thin: 1px;
+    --border-medium: 2px;
+    --border-thick: 3px;
+
+    // ===== SOMBRAS =====
+
+    // Sombras suaves con color navy
+    --shadow-sm: 0 2px 8px rgba(13, 27, 42, 0.08);
+    --shadow-md: 0 4px 16px rgba(13, 27, 42, 0.12);
+    --shadow-lg: 0 8px 24px rgba(13, 27, 42, 0.16);
+    --shadow-xl: 0 12px 32px rgba(13, 27, 42, 0.20);
+    --shadow-2xl: 0 24px 48px rgba(13, 27, 42, 0.25);
+
+    // Sombras de color (para estados)
+    --shadow-cyan: 0 4px 16px rgba(75, 163, 255, 0.3);
+    --shadow-success: 0 4px 16px rgba(16, 185, 129, 0.3);
+    --shadow-error: 0 4px 16px rgba(239, 68, 68, 0.3);
+
+    // ===== TRANSICIONES =====
+
+    --transition-fast: 150ms ease;
+    --transition-base: 250ms ease;
+    --transition-slow: 350ms ease;
+    --transition-slower: 500ms ease;
+
+    // Easing functions
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+    // ===== Z-INDEX =====
+
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+
+    // ===== BREAKPOINTS (para uso en JS) =====
+
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    // ===== LAYOUT =====
+
+    --container-max-width: 1400px;
+    --content-max-width: 900px;
+    --sidebar-width: 280px;
+
+    // Grid
+    --grid-columns: 12;
+    --grid-gap: var(--space-6);
+}
+
+// ===================================================================
+// 🌙 DARK MODE
+// ===================================================================
+
+[data-theme="dark"] {
+    --mono-bg: var(--mono-bg-dark);
+    --mono-bg-elevated: var(--mono-bg-dark-elevated);
+    --mono-bg-card: var(--mono-bg-dark-card);
+    --mono-text: var(--mono-text-on-dark);
+    --mono-text-secondary: var(--mono-text-secondary-dark);
+}
+
+[data-theme="light"] {
+    --mono-bg: var(--mono-bg-light);
+    --mono-bg-elevated: var(--mono-bg-light-secondary);
+    --mono-bg-card: var(--mono-white);
+    --mono-text: var(--mono-text-on-light);
+    --mono-text-secondary: var(--mono-text-secondary-light);
+}
+
+// Default to light mode
+:root {
+    --mono-bg: var(--mono-bg-light);
+    --mono-bg-elevated: var(--mono-bg-light-secondary);
+    --mono-bg-card: var(--mono-white);
+    --mono-text: var(--mono-text-on-light);
+    --mono-text-secondary: var(--mono-text-secondary-light);
+}
+
+// ===================================================================
+// 🎨 UTILITY CLASSES
+// ===================================================================
+
+// Colores de texto
+.text-navy {
+    color: var(--mono-navy);
+}
+
+.text-cyan {
+    color: var(--mono-cyan);
+}
+
+.text-white {
+    color: var(--mono-white);
+}
+
+.text-gray {
+    color: var(--mono-gray-light);
+}
+
+.text-success {
+    color: var(--color-success);
+}
+
+.text-error {
+    color: var(--color-error);
+}
+
+.text-warning {
+    color: var(--color-warning);
+}
+
+// Fondos
+.bg-navy {
+    background-color: var(--mono-navy);
+}
+
+.bg-cyan {
+    background-color: var(--mono-cyan);
+}
+
+.bg-white {
+    background-color: var(--mono-white);
+}
+
+.bg-gray {
+    background-color: var(--mono-gray-neutral);
+}
+
+// Tipografía
+.font-heading {
+    font-family: var(--font-heading);
+}
+
+.font-subheading {
+    font-family: var(--font-subheading);
+}
+
+.font-body {
+    font-family: var(--font-body);
+}
+
+// Border radius
+.rounded-sm {
+    border-radius: var(--radius-sm);
+}
+
+.rounded-md {
+    border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+    border-radius: var(--radius-lg);
+}
+
+.rounded-xl {
+    border-radius: var(--radius-xl);
+}
+
+.rounded-full {
+    border-radius: var(--radius-full);
+}
+
+// Sombras
+.shadow-sm {
+    box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+    box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+    box-shadow: var(--shadow-lg);
+}
+
+.shadow-xl {
+    box-shadow: var(--shadow-xl);
+}
+
+// ===================================================================
+// 🔍 ACCESIBILIDAD
+// ===================================================================
+
+// Focus visible para navegación por teclado
+*:focus-visible {
+    outline: var(--border-thick) solid var(--mono-cyan);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+// Skip link para screen readers
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--mono-navy);
+    color: var(--mono-white);
+    padding: var(--space-2) var(--space-4);
+    z-index: var(--z-tooltip);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+
+    &:focus {
+        top: var(--space-2);
+    }
+}
+
+// Reducir movimiento para usuarios con preferencias de accesibilidad
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+// ===================================================================
+// 📱 RESPONSIVE HELPERS
+// ===================================================================
+
+// Container con max-width
+.container {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+}
+
+.content-container {
+    width: 100%;
+    max-width: var(--content-max-width);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+// ===================================================================
+// 🎯 ICONOGRAFÍA
+// ===================================================================
+
+// Tamaños de iconos estandarizados
+.icon-xs {
+    width: 16px;
+    height: 16px;
+}
+
+.icon-sm {
+    width: 20px;
+    height: 20px;
+}
+
+.icon-md {
+    width: 24px;
+    height: 24px;
+}
+
+.icon-lg {
+    width: 32px;
+    height: 32px;
+}
+
+.icon-xl {
+    width: 48px;
+    height: 48px;
+}
+
+.icon-2xl {
+    width: 64px;
+    height: 64px;
+}
+
+// Color de iconos
+.icon-navy {
+    color: var(--mono-navy);
+}
+
+.icon-cyan {
+    color: var(--mono-cyan);
+}
+
+.icon-white {
+    color: var(--mono-white);
+}
+
+.icon-gray {
+    color: var(--mono-gray-light);
+}

@@ -1,0 +1,425 @@
+1️⃣ Los archivos .md separados por módulo (listas para copiar tal cual al repo).
+2️⃣ El contrato OpenAPI inicial completo (versión lista para implementar en Codex Cloud / NestJS).
+
+Todo está estructurado, limpio y preparado para producción.
+
+🧩 1. ARCHIVOS .md POR MÓDULO
+
+A continuación te doy el contenido para que puedas crear los archivos en tu repositorio /docs.
+Cada uno viene con su nombre sugerido.
+
+📄 docs/director-global.md
+# Director Global – Monotickets Platinum  
+## Funcionalidades y Criterios de Aceptación
+
+---
+
+## 1. Objetivo
+El rol de **Director Global** supervisa el funcionamiento completo de Monotickets Platinum: planners, eventos, invitaciones generadas, confirmaciones y escaneos.
+
+---
+
+## 2. Funcionalidades
+
+### **DG-01 – Ver listado de planners**
+- Tabla con: nombre, email, número de eventos, fecha creación.
+- Paginación.
+- Solo acceso para `DIRECTOR_GLOBAL`.
+
+### **DG-02 – Ver métricas globales**
+- Total eventos.
+- Total invitaciones generadas (QR emitidos).
+- Total confirmaciones.
+- Total escaneos.
+- Filtros por rango de fechas.
+
+### **DG-03 – Ver detalle por planner**
+- Eventos del planner.
+- Invitaciones generadas por esos eventos.
+- Confirmaciones recibidas.
+- Asistencias registradas.
+
+### **DG-04 – Ver eventos globales**
+- Tabla de eventos: planner, nombre, tipo, fecha.
+- Estado: `DRAFT`, `PUBLISHED`, `CLOSED`.
+
+### **DG-05 – Configuración básica del ecosistema**
+- Activar/desactivar plantillas globales.
+- Ver métricas de uso por plantilla.
+
+---
+
+## 3. Reglas del Director Global
+- No edita información de planners.
+- No modifica invitados.
+- Puede cerrar eventos si representan riesgo o mal uso.
+
+📄 docs/planner.md
+# Planner – Monotickets Platinum  
+## Funcionalidades y Criterios de Aceptación
+
+---
+
+## 1. Objetivo
+Los planners administran eventos privados, generan invitaciones y monitorean confirmaciones y asistencia.
+
+---
+
+## 2. Funcionalidades
+
+### **PL-01 – Crear evento**
+- Formulario con: nombre, tipo, fecha, hora, ubicación.
+- Selección de plantilla PDF o Premium.
+
+### **PL-02 – Personalizar plantilla**
+- Cambiar colores, tipografía (opcional), portada e imágenes.
+- Máx. 5 fotos, máx. 2MB c/u.
+
+### **PL-03 – Cargar invitados (CSV/Excel)**
+- Archivo sencillo con: nombre, teléfono.
+- Validación automática.
+- Se crean `GUESTS` y `INVITATIONS`.
+
+### **PL-04 – Habilitar formulario RSVP**
+- Link único generado por evento.
+- Invitados llenan nombre + teléfono.
+- Se crean registros `GUESTS` con `rsvp_source = RSVP_FORM`.
+
+### **PL-05 – Link para anfitriones (opcional)**
+- URL protegida con token.
+- Permite subir CSV o compartir RSVP.
+
+### **PL-06 – Configurar invitaciones grupales**
+- Definir `guestCount` por invitación (1–10).
+
+### **PL-07 – Envío de invitaciones**
+- Botón “Enviar invitaciones”.
+- Flujo:
+  - 1️⃣ SMS  
+  - 2️⃣ Si falla → WhatsApp
+
+### **PL-08 – Ver confirmaciones**
+- Tabla: nombre, teléfono, estado RSVP, estado envío, guestCount.
+
+### **PL-09 – Ver escaneos**
+- Panel de asistencia en tiempo real.
+
+---
+
+## 3. Reglas del Planner
+- No ve métricas globales.
+- No edita plantillas globales.
+- Solo administra eventos propios.
+
+📄 docs/invitado.md
+# Invitado – Monotickets Platinum  
+## Funcionalidades y Experiencia de Usuario
+
+---
+
+## 1. Objetivo
+El invitado recibe y usa su invitación digital, confirma asistencia y presenta su QR en el evento.
+
+---
+
+## 2. Funcionalidades
+
+### **INV-01 – Recibir invitación**
+- Por SMS o WhatsApp.
+- Mensaje contiene enlace único.
+
+### **INV-02 – Landing Premium**
+- Portada (efecto libro).
+- Datos del evento.
+- Mapa.
+- Mesa de regalos.
+- Galería (máx. 5 fotos).
+- Botón “Agregar al calendario”.
+
+### **INV-03 – Confirmar asistencia**
+- Botón 1 clic.
+- Cambia RSVP a `CONFIRMED`.
+- Activa QR dinámico.
+
+### **INV-04 – QR dinámico**
+- JWT con:
+  - eventId
+  - guestId
+  - guestCount
+  - exp
+  - jti
+- Válido solo con RSVP confirmado.
+
+---
+
+## 3. Reglas del Invitado
+- No puede modificar datos del evento.
+- Puede acceder múltiples veces a su enlace.
+
+📄 docs/staff.md
+# Staff – Monotickets Platinum  
+## Funcionalidades y Criterios de Aceptación
+
+---
+
+## 1. Objetivo
+El staff controla el acceso al evento mediante escaneo de QR dinámicos.
+
+---
+
+## 2. Funcionalidades
+
+### **ST-01 – Inicio de sesión**
+- Token o credenciales.
+- Acceso solo al evento asignado.
+
+### **ST-02 – Escanear QR**
+- Usa cámara del dispositivo.
+- Envía token JWT al backend.
+- Recibe respuesta:
+  - VALID → Verde + vibración ligera + nombre + guestCount
+  - DUPLICATE → Rojo + doble vibración
+  - INVALID/EXPIRED → Rojo + error
+
+### **ST-03 – Historial de escaneos**
+- Lista lateral con:
+  - Nombre
+  - Resultado
+  - Hora
+
+---
+
+## 3. Reglas del Staff
+- No edita invitados.
+- No envía invitaciones.
+- No tiene acceso al panel del planner.
+
+📄 docs/sistema-delivery.md
+# Delivery de Invitaciones – Monotickets Platinum  
+## SMS + WhatsApp Cloud API
+
+---
+
+## 1. Flujo General
+1. Planner presiona “Enviar invitaciones”.
+2. El sistema crea un intent de envío por SMS.
+3. Si SMS falla:
+   - Genera un intent por WhatsApp Cloud API.
+4. Registra resultados en `DELIVERY_ATTEMPTS`.
+
+---
+
+## 2. Lógica de Envío
+
+### **SMS**
+- Prioridad 1.
+- Plantilla:
+  - Texto corto + link.
+
+### **WhatsApp**
+- Prioridad 2 (fallback).
+- Plantilla configurada desde Meta.
+
+### **Condiciones de falla**
+- Número inválido.
+- Proveedor caído.
+- Límite diario superado.
+
+---
+
+## 3. Reglas
+- Cada invitación debe tener al menos 1 attempt.
+- Reintentos manuales permitidos.
+
+🟦 2. CONTRATO OPENAPI (Versión MVP)
+
+(Listo para Codex/NestJS)
+
+openapi: 3.0.3
+info:
+  title: Monotickets Platinum API
+  version: 1.0.0
+
+servers:
+  - url: https://api.monotickets-platinum.com
+    description: Production
+
+tags:
+  - name: Auth
+  - name: Planners
+  - name: Events
+  - name: Guests
+  - name: Invitations
+  - name: Delivery
+  - name: Scanner
+  - name: DirectorGlobal
+
+paths:
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200":
+          description: Login correcto
+        "401":
+          description: Credenciales incorrectas
+
+  /planners/me:
+    get:
+      tags: [Planners]
+      security:
+        - bearerAuth: []
+      summary: Obtener datos del planner logueado
+      responses:
+        "200":
+          description: Datos del planner
+
+  /events:
+    post:
+      tags: [Events]
+      security:
+        - bearerAuth: []
+      summary: Crear evento
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                type: { type: string }
+                date: { type: string, format: date }
+                time: { type: string }
+                location: { type: string }
+                template_type: { type: string }
+      responses:
+        "201":
+          description: Evento creado
+
+    get:
+      tags: [Events]
+      security:
+        - bearerAuth: []
+      summary: Listar eventos del planner
+      responses:
+        "200":
+          description: Lista de eventos
+
+  /events/{eventId}:
+    get:
+      tags: [Events]
+      security:
+        - bearerAuth: []
+      summary: Obtener evento
+      parameters:
+        - in: path
+          name: eventId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Evento encontrado
+
+  /events/{eventId}/guests/upload:
+    post:
+      tags: [Guests]
+      security:
+        - bearerAuth: []
+      summary: Subir invitados vía CSV/Excel
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Invitados cargados
+
+  /events/{eventId}/rsvp-form:
+    get:
+      tags: [Guests]
+      security:
+        - bearerAuth: []
+      summary: Generar link de formulario RSVP
+      responses:
+        "200":
+          description: Link generado
+
+  /events/{eventId}/host-link:
+    get:
+      tags: [Guests]
+      security:
+        - bearerAuth: []
+      summary: Generar link para anfitriones
+      responses:
+        "200":
+          description: Link generado
+
+  /invitations/{invitationId}/send:
+    post:
+      tags: [Delivery]
+      security:
+        - bearerAuth: []
+      summary: Enviar invitación por SMS/WhatsApp
+      responses:
+        "200":
+          description: Intent enviado
+
+  /scanner/validate:
+    post:
+      tags: [Scanner]
+      security:
+        - bearerAuth: []
+      summary: Validar QR escaneado
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token: { type: string }
+      responses:
+        "200":
+          description: Resultado del escaneo
+
+  /director/planners:
+    get:
+      tags: [DirectorGlobal]
+      security:
+        - bearerAuth: []
+      summary: Listar planners
+      responses:
+        "200":
+          description: Lista de planners
+
+  /director/metrics:
+    get:
+      tags: [DirectorGlobal]
+      security:
+        - bearerAuth: []
+      summary: Métricas globales
+      responses:
+        "200":
+          description: Métricas
+          
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

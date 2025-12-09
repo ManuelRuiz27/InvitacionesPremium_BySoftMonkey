@@ -1,0 +1,73 @@
+<div class="planners-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Listado de Planners</h1>
+    </div>
+
+    <mat-card>
+        @if (loading) {
+        <div class="loading-container">
+            <mat-spinner></mat-spinner>
+            <p>Cargando planners...</p>
+        </div>
+        } @else {
+        <div class="table-container">
+            <table mat-table [dataSource]="planners" class="planners-table">
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                    <td mat-cell *matCellDef="let planner">{{ planner.name }}</td>
+                </ng-container>
+
+                <!-- Email Column -->
+                <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef>Email</th>
+                    <td mat-cell *matCellDef="let planner">{{ planner.email }}</td>
+                </ng-container>
+
+                <!-- Organization Column -->
+                <ng-container matColumnDef="orgName">
+                    <th mat-header-cell *matHeaderCellDef>Organización</th>
+                    <td mat-cell *matCellDef="let planner">{{ planner.orgName }}</td>
+                </ng-container>
+
+                <!-- Total Events Column -->
+                <ng-container matColumnDef="totalEvents">
+                    <th mat-header-cell *matHeaderCellDef>Eventos</th>
+                    <td mat-cell *matCellDef="let planner">
+                        <span class="badge">{{ planner.totalEvents }}</span>
+                    </td>
+                </ng-container>
+
+                <!-- Created At Column -->
+                <ng-container matColumnDef="createdAt">
+                    <th mat-header-cell *matHeaderCellDef>Fecha Registro</th>
+                    <td mat-cell *matCellDef="let planner">
+                        {{ planner.createdAt | date: 'dd/MM/yyyy' }}
+                    </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                    <td mat-cell *matCellDef="let planner">
+                        <button mat-raised-button color="primary" (click)="viewPlannerDetail(planner.id)">
+                            <mat-icon>visibility</mat-icon>
+                            Ver Detalle
+                        </button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+        </div>
+
+        <mat-paginator [length]="totalPlanners" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]"
+            (page)="onPageChange($event)" showFirstLastButtons>
+        </mat-paginator>
+        }
+    </mat-card>
+</div>

@@ -1,0 +1,76 @@
+// ===================================================================
+// 🎨 EVENT FORM - MONOTICKETS PLATINUM
+// ===================================================================
+
+.form-container {
+    padding: var(--space-6);
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--mono-bg);
+}
+
+.form-card {
+    background: var(--mono-white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-md);
+}
+
+.form-header {
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-4);
+    border-bottom: 2px solid var(--mono-cyan);
+
+    h1 {
+        margin: 0;
+        font-family: var(--font-heading);
+        font-size: var(--text-3xl);
+        font-weight: var(--font-bold);
+        color: var(--mono-navy);
+    }
+
+    p {
+        margin: var(--space-2) 0 0;
+        font-family: var(--font-body);
+        color: var(--mono-gray-dark);
+    }
+}
+
+.form-section {
+    margin-bottom: var(--space-8);
+
+    h2 {
+        margin: 0 0 var(--space-4) 0;
+        font-family: var(--font-subheading);
+        font-size: var(--text-xl);
+        font-weight: var(--font-semibold);
+        color: var(--mono-navy);
+    }
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: flex-end;
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--mono-gray-neutral);
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: var(--space-4);
+    }
+
+    .form-card {
+        padding: var(--space-6);
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+
+        button {
+            width: 100%;
+        }
+    }
+}

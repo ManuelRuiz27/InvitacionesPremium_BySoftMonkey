@@ -1,0 +1,85 @@
+<div class="generator-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Generar Invitaciones</h1>
+    </div>
+
+    <mat-card>
+        @if (loading) {
+        <div class="loading-container">
+            <mat-spinner></mat-spinner>
+            <p>Cargando invitados...</p>
+        </div>
+        } @else {
+        <div class="selection-header">
+            <p><strong>{{ selectedGuests.size }}</strong> invitados seleccionados</p>
+            <div class="actions">
+                <button mat-stroked-button (click)="selectAll()" [disabled]="generating">
+                    Seleccionar Todos
+                </button>
+                <button mat-stroked-button (click)="deselectAll()" [disabled]="generating">
+                    Deseleccionar Todos
+                </button>
+            </div>
+        </div>
+
+        <table mat-table [dataSource]="guests" class="guests-table">
+            <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let guest">
+                    <mat-checkbox [checked]="isSelected(guest.id)" (change)="toggleGuest(guest.id)"
+                        [disabled]="generating">
+                    </mat-checkbox>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="fullName">
+                <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                <td mat-cell *matCellDef="let guest">{{ guest.fullName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="phone">
+                <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+                <td mat-cell *matCellDef="let guest">{{ guest.phone }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="rsvpStatus">
+                <th mat-header-cell *matHeaderCellDef>Estado</th>
+                <td mat-cell *matCellDef="let guest">
+                    <mat-chip>{{ guest.rsvpStatus }}</mat-chip>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <div class="form-actions">
+            <button mat-stroked-button (click)="goBack()" [disabled]="generating">
+                Cancelar
+            </button>
+            <button mat-raised-button color="primary" (click)="generateInvitations()"
+                [disabled]="generating || selectedGuests.size === 0">
+                @if (generating) {
+                Generando...
+                } @else {
+                Generar {{ selectedGuests.size }} Invitaciones
+                }
+            </button>
+        </div>
+
+        @if (generating) {
+        <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+        }
+
+        @if (result) {
+        <div class="result">
+            <mat-icon class="success">check_circle</mat-icon>
+            <p><strong>{{ result.generated }} invitaciones generadas exitosamente</strong></p>
+        </div>
+        }
+        }
+    </mat-card>
+</div>

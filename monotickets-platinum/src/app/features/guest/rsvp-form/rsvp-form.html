@@ -1,0 +1,72 @@
+<div class="rsvp-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Confirmar Asistencia</h1>
+    </div>
+
+    <mat-card *ngIf="!submitted">
+        <form [formGroup]="rsvpForm" (ngSubmit)="onSubmit()">
+            <div class="form-section">
+                <h2>¿Asistirás al evento?</h2>
+                <mat-radio-group formControlName="rsvpStatus" class="radio-group">
+                    <mat-radio-button value="CONFIRMED">Sí, asistiré</mat-radio-button>
+                    <mat-radio-button value="DECLINED">No podré asistir</mat-radio-button>
+                </mat-radio-group>
+            </div>
+
+            <div class="form-section" *ngIf="isConfirming()">
+                <h2>¿Cuántas personas asistirán?</h2>
+                <mat-form-field>
+                    <mat-label>Número de personas</mat-label>
+                    <input matInput type="number" formControlName="guestCount" min="1" max="10">
+                    @if (rsvpForm.get('guestCount')?.hasError('required')) {
+                    <mat-error>Este campo es requerido</mat-error>
+                    }
+                    @if (rsvpForm.get('guestCount')?.hasError('min')) {
+                    <mat-error>Mínimo 1 persona</mat-error>
+                    }
+                    @if (rsvpForm.get('guestCount')?.hasError('max')) {
+                    <mat-error>Máximo 10 personas</mat-error>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div class="form-section">
+                <h2>Notas (opcional)</h2>
+                <mat-form-field>
+                    <mat-label>Comentarios adicionales</mat-label>
+                    <textarea matInput formControlName="notes" rows="3" maxlength="500"></textarea>
+                    <mat-hint align="end">{{ rsvpForm.get('notes')?.value?.length || 0 }}/500</mat-hint>
+                </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+                <button mat-stroked-button type="button" (click)="goBack()" [disabled]="loading">
+                    Cancelar
+                </button>
+                <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+                    @if (loading) {
+                    Confirmando...
+                    } @else {
+                    Confirmar
+                    }
+                </button>
+            </div>
+        </form>
+    </mat-card>
+
+    <!-- Success Message -->
+    <mat-card *ngIf="submitted" class="success-card">
+        <mat-icon class="success-icon">check_circle</mat-icon>
+        <h2>¡Confirmación Exitosa!</h2>
+        <p *ngIf="qrGenerated">
+            Tu asistencia ha sido confirmada. Te estamos redirigiendo a tu código QR...
+        </p>
+        <p *ngIf="!qrGenerated">
+            Gracias por tu respuesta. Lamentamos que no puedas asistir.
+        </p>
+        <mat-spinner *ngIf="loading"></mat-spinner>
+    </mat-card>
+</div>

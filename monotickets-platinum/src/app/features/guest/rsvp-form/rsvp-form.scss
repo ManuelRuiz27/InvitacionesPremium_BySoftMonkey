@@ -1,0 +1,262 @@
+.rsvp-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 20px;
+
+    .header {
+        max-width: 700px;
+        margin: 0 auto 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        button {
+            mat-icon {
+                font-size: 28px;
+                width: 28px;
+                height: 28px;
+            }
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            color: #1f2937;
+            font-family: 'Playfair Display', 'Georgia', serif;
+        }
+    }
+
+    mat-card {
+        max-width: 700px;
+        margin: 0 auto;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        animation: fadeInUp 0.6s ease-out;
+
+        form {
+            .form-section {
+                margin-bottom: 36px;
+
+                h2 {
+                    margin: 0 0 20px;
+                    font-size: 20px;
+                    font-weight: 600;
+                    color: #1f2937;
+                }
+
+                .radio-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+
+                    mat-radio-button {
+                        padding: 16px 20px;
+                        border-radius: 12px;
+                        border: 2px solid #e5e7eb;
+                        transition: all 0.3s ease;
+                        background: #ffffff;
+
+                        &:hover {
+                            border-color: #D4AF37;
+                            background: #fffbf0;
+                        }
+
+                        &.mat-mdc-radio-checked {
+                            border-color: #D4AF37;
+                            background: #fffbf0;
+                            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+                        }
+
+                        ::ng-deep .mdc-label {
+                            font-size: 16px;
+                            font-weight: 500;
+                            color: #374151;
+                        }
+                    }
+                }
+
+                mat-form-field {
+                    width: 100%;
+
+                    ::ng-deep {
+                        .mat-mdc-text-field-wrapper {
+                            border-radius: 12px;
+                        }
+
+                        .mat-mdc-form-field-focus-overlay {
+                            border-radius: 12px;
+                        }
+                    }
+
+                    input,
+                    textarea {
+                        font-size: 16px;
+                    }
+                }
+            }
+
+            .form-actions {
+                display: flex;
+                gap: 16px;
+                justify-content: flex-end;
+                margin-top: 40px;
+
+                button {
+                    min-width: 140px;
+                    height: 48px;
+                    font-size: 16px;
+                    font-weight: 500;
+                    border-radius: 12px;
+                    transition: all 0.3s ease;
+
+                    &:hover:not(:disabled) {
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+                    }
+
+                    &:disabled {
+                        opacity: 0.6;
+                        cursor: not-allowed;
+                    }
+                }
+
+                button[type="submit"] {
+                    &:hover:not(:disabled) {
+                        box-shadow: 0 6px 16px rgba(63, 81, 181, 0.3);
+                    }
+                }
+            }
+        }
+    }
+
+    .success-card {
+        text-align: center;
+        padding: 60px 40px;
+        animation: scaleIn 0.5s ease-out;
+
+        .success-icon {
+            font-size: 80px;
+            width: 80px;
+            height: 80px;
+            color: #10b981;
+            margin: 0 auto 24px;
+            animation: checkBounce 0.6s ease-out;
+        }
+
+        h2 {
+            margin: 0 0 16px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        p {
+            margin: 0 0 24px;
+            font-size: 18px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        mat-spinner {
+            margin: 0 auto;
+        }
+    }
+}
+
+// ===== ANIMATIONS =====
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes checkBounce {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+    .rsvp-container {
+        padding: 16px;
+
+        .header {
+            margin-bottom: 24px;
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+
+        mat-card {
+            padding: 28px 20px;
+
+            form {
+                .form-section {
+                    margin-bottom: 28px;
+
+                    h2 {
+                        font-size: 18px;
+                    }
+                }
+
+                .form-actions {
+                    flex-direction: column-reverse;
+
+                    button {
+                        width: 100%;
+                    }
+                }
+            }
+        }
+
+        .success-card {
+            padding: 40px 24px;
+
+            .success-icon {
+                font-size: 64px;
+                width: 64px;
+                height: 64px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            p {
+                font-size: 16px;
+            }
+        }
+    }
+}

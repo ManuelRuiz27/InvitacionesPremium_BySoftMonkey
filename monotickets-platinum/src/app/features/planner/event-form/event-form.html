@@ -1,0 +1,71 @@
+<div class="form-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>{{ isEditMode ? 'Editar Evento' : 'Crear Nuevo Evento' }}</h1>
+    </div>
+
+    <mat-card>
+        @if (loading && isEditMode) {
+        <div class="loading-container">
+            <mat-spinner></mat-spinner>
+            <p>Cargando evento...</p>
+        </div>
+        } @else {
+        <form [formGroup]="eventForm" (ngSubmit)="onSubmit()">
+            <div class="form-grid">
+                <mat-form-field class="full-width">
+                    <mat-label>Nombre del Evento</mat-label>
+                    <input matInput formControlName="name" placeholder="Ej: Boda de Juan y María">
+                    @if (eventForm.get('name')?.hasError('required') && eventForm.get('name')?.touched) {
+                    <mat-error>El nombre es requerido</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Tipo de Evento</mat-label>
+                    <mat-select formControlName="type">
+                        @for (type of eventTypes; track type) {
+                        <mat-option [value]="type">{{ getTypeLabel(type) }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Fecha</mat-label>
+                    <input matInput [matDatepicker]="picker" formControlName="date">
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Hora</mat-label>
+                    <input matInput formControlName="time" placeholder="HH:MM" type="time">
+                </mat-form-field>
+
+                <mat-form-field class="full-width">
+                    <mat-label>Ubicación</mat-label>
+                    <textarea matInput formControlName="locationText" rows="2"
+                        placeholder="Ej: Hacienda Los Laureles"></textarea>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Tipo de Plantilla</mat-label>
+                    <mat-select formControlName="templateType">
+                        <mat-option value="PREMIUM">Premium</mat-option>
+                        <mat-option value="PDF">PDF</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+                <button mat-stroked-button type="button" (click)="goBack()">Cancelar</button>
+                <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+                    {{ isEditMode ? 'Guardar' : 'Crear' }}
+                </button>
+            </div>
+        </form>
+        }
+    </mat-card>
+</div>

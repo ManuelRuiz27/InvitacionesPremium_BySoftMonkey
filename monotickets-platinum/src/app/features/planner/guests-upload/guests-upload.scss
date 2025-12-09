@@ -1,0 +1,126 @@
+.upload-container {
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+}
+
+mat-card {
+    padding: 32px !important;
+}
+
+.drop-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 60px 20px;
+    text-align: center;
+    transition: all 0.3s;
+
+    &:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+    }
+
+    mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: #667eea;
+        margin-bottom: 16px;
+    }
+
+    h2 {
+        margin: 0 0 8px;
+        font-size: 20px;
+        color: #1f2937;
+    }
+
+    p {
+        margin: 8px 0;
+        color: #6b7280;
+    }
+
+    .hint {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 16px;
+    }
+}
+
+.preview-section {
+    h3 {
+        margin: 0 0 20px;
+        font-size: 18px;
+        color: #1f2937;
+    }
+}
+
+.preview-table {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+mat-progress-bar {
+    margin-bottom: 16px;
+}
+
+.result {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 8px;
+    background: #f9fafb;
+
+    mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+
+        &.success {
+            color: #10b981;
+        }
+
+        &.warning {
+            color: #f59e0b;
+        }
+    }
+
+    p {
+        margin: 4px 0;
+    }
+
+    .errors {
+        color: #f59e0b;
+    }
+}
+
+@media (max-width: 768px) {
+    .upload-container {
+        padding: 16px;
+    }
+
+    .drop-zone {
+        padding: 40px 16px;
+    }
+}

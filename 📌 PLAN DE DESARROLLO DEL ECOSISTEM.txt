@@ -1,0 +1,483 @@
+📌 PLAN DE DESARROLLO DEL ECOSISTEMA – Plataforma GR (Graduaciones)
+
+Arquitectura sugerida:
+
+Frontend: React
+
+Backend: Node.js + Express
+
+Base de datos: PostgreSQL
+
+Integración de pagos: OpenPay (tarjeta + transferencias SPEI)
+
+Infraestructura:
+
+Front: Vercel
+
+API: Render / Fly.io
+
+DB: Neon / Supabase
+
+Almacenamiento: local o S3-compatible para documentos/croquis
+
+🧱 FASE 0 – Preparación y Fundamentos
+🎯 Objetivo
+
+Dejar el proyecto listo para empezar a desarrollar sin fricción.
+
+🔧 Tareas
+
+Crear monorepo (opcional) o repos separados:
+
+/frontend
+
+/backend
+
+Configurar:
+
+Entorno Node (v18+)
+
+TypeScript (recomendado)
+
+ESLint + Prettier
+
+Esquema inicial de BD (PostgreSQL)
+
+Diseño preliminar del modelo ER (payment_plans, events, graduates, payments, admins, etc.)
+
+📦 Entregables
+
+Repos funcionando
+
+BD inicial migrada
+
+README técnico
+
+🧩 FASE 1 – Módulo Administrador
+🎯 Objetivo
+
+Que el administrador pueda crear y gestionar eventos.
+
+🔧 Backend
+
+CRUD de eventos
+
+Gestión de:
+
+precios de boletos
+
+monto mínimo del primer abono
+
+porcentaje para desbloqueo de termo
+
+calendario estimado de pagos
+
+API para subir PDF del croquis
+
+API para convertir PDF → imagen PNG (para base del drag-and-drop)
+
+Modelo de croquis (mesas, posiciones, elementos)
+
+🎨 Frontend
+
+Panel de administrador
+
+Formulario: crear evento
+
+Formulario: editar evento
+
+Visualización del croquis cargado
+
+Interfaz para ajustar número de mesas
+
+📦 Entregables
+
+Panel Admin MVP
+
+Gestión de eventos funcionando
+
+Croquis base (PDF → imagen)
+
+🧩 FASE 2 – Registro de Graduados + Flujo inicial
+🎯 Objetivo
+
+Que un graduado pueda entrar al evento y registrarse.
+
+🔧 Backend
+
+Endpoints:
+
+registro de graduado
+
+verificación de teléfono
+
+almacenamiento de firma (canvas → PNG)
+
+asociación con evento
+
+asignación de ID único
+
+Generación de ID y QR (solo interno para flujo de pagos, no invitación digital)
+
+🎨 Frontend
+
+Página de registro del graduado
+
+Pizarra de firma digital
+
+Selección de cantidad de boletos
+
+Validación de WhatsApp
+
+Confirmación visual del registro
+
+📦 Entregables
+
+Alta de graduados 100% funcional
+
+Firma digital almacenada
+
+ID interno generado
+
+Graduado vinculado a su plan de pagos
+
+🧩 FASE 3 – Plan de Pagos
+🎯 Objetivo
+
+Configurar, calcular y administrar el plan de pagos por graduado.
+
+🔧 Backend
+
+Crear plan de pagos automático:
+
+monto total
+
+monto mensual
+
+% de avance
+
+saldo pendiente
+
+Lógica:
+
+si agrega invitados después → deben pagar meses atrasados
+
+recalcular totales si:
+
+cambia mesa
+
+agrega invitado
+
+Historial de pagos por graduado
+
+🎨 Frontend
+
+Vista del plan de pagos para administrador
+
+Vista del plan de pagos para graduado
+
+Indicadores:
+
+Saldo
+
+Avance %
+
+Meses pagados
+
+Atrasos
+
+📦 Entregables
+
+Plan de pagos funcional
+
+Reglas de negocio implementadas
+
+Cálculo automático y actualización
+
+🧩 FASE 4 – Integración con OpenPay
+🎯 Objetivo
+
+Activar pagos en línea (tarjeta) y transferencias SPEI.
+
+🧰 4.1 Pagos con tarjeta
+Backend
+
+Crear cargo vía API de OpenPay
+
+Registrar pago en BD
+
+Validar éxito / fallo
+
+Registrar logs de operación
+
+Frontend
+
+Pantalla de pago seguro
+
+Entrada de monto (según cuota del mes)
+
+Validación de estado del pago
+
+🧰 4.2 Transferencias SPEI
+Backend
+
+Generar referencia única por pago
+
+Guardar estado en BD: pendiente
+
+Recibir confirmación via webhook OpenPay
+
+Actualizar estado a pagado
+
+Frontend
+
+Mostrar referencia de transferencia
+
+Mostrar instrucciones SPEI
+
+Mostrar actualizaciones en tiempo real
+
+🧰 4.3 Webhooks
+Backend
+
+Implementar endpoint seguro
+
+Validar firma de OpenPay
+
+Manejo de eventos:
+
+charge.succeeded
+
+charge.failed
+
+SPEI confirmados
+
+Actualizar plan de pagos
+
+Generar registros para dashboard
+
+📦 Entregables
+
+Pagos en línea funcionando
+
+Transferencias SPEI funcionando
+
+Webhooks en tiempo real
+
+Reducción de errores manuales a 0
+
+🧩 FASE 5 – Pagos en efectivo (cobranza presencial)
+🎯 Objetivo
+
+Facilitar a los cobradores registrar pagos sin errores.
+
+🔧 Backend
+
+Endpoint:
+
+buscar graduado por ID / QR / teléfono
+
+registrar pago en efectivo
+
+recalcular plan y %
+
+Logs de auditoría (quién cobró y cuándo)
+
+🎨 Frontend
+
+Interfaz para el personal de cobranza:
+
+escáner QR
+
+captura manual de ID
+
+agregar monto y nota
+
+Confirmación automática del nuevo pago
+
+Lógica anti-duplicados
+
+📦 Entregables
+
+Módulo de cobranza offline/efectivo completo
+
+Trazabilidad total de pagos
+
+🧩 FASE 6 – Dashboards + Reportes financieros
+🎯 Objetivo
+
+Proveer control y visibilidad absoluta al administrador.
+
+🔧 Backend
+
+Endpoints:
+
+Totales diarios / semanales / mensuales
+
+Filtrado por evento
+
+Graduados por estatus: al corriente, atrasados
+
+Reporte de termos desbloqueados
+
+Reporte de platillos (veganos / tradicionales)
+
+🎨 Frontend
+
+Dashboard general:
+
+tarjetas de métricas
+
+recaudación por periodo
+
+ingresos por método (tarjeta, SPEI, efectivo)
+
+Dashboard del evento:
+
+lista de graduados
+
+% avance individual
+
+historiales
+
+termos desbloqueados
+
+Botón exportable (Excel/CSV)
+
+📦 Entregables
+
+Dashboard completo
+
+Reportes exportables
+
+Control financiero profesional
+
+🧩 FASE 7 – Croquis interactivo (Drag & Drop)
+🎯 Objetivo
+
+Permitir al administrador manejar mesas y distribuciones en tiempo real.
+
+🔧 Backend
+
+Almacenar estructura del croquis
+
+Endpoints para actualizar posiciones
+
+Sincronización con selección de graduados
+
+🎨 Frontend
+
+Importación de PDF → imagen base
+
+Drag & drop:
+
+mesas
+
+pista de baile
+
+DJ
+
+baños
+
+salidas
+
+Estado en tiempo real:
+
+cantidad de personas por mesa
+
+disponibilidad
+
+📦 Entregables
+
+Croquis interactivo
+
+Actualización en tiempo real
+
+🧩 FASE 8 – Termos personalizados
+🎯 Objetivo
+
+Automatizar el beneficio desbloqueable.
+
+🔧 Backend
+
+Lógica del % de desbloqueo (configurable)
+
+Validaciones por graduado
+
+Guardar personalización (prefijo + nombre ≤ 14 chars)
+
+Reporte para proveedores
+
+🎨 Frontend
+
+Formulario de personalización
+
+Visualización del estatus
+
+Reporte para el administrador
+
+📦 Entregables
+
+Sistema de termos funcional y automatizado
+
+🚀 FASE FINAL – QA, seguridad y despliegue
+Seguridad
+
+HTTPS
+
+Validación de webhooks
+
+Hardening del backend
+
+Logs de auditoría
+
+QA
+
+Pruebas de carga (temporada alta)
+
+Pruebas de pagos
+
+Pruebas de croquis
+
+Pruebas de dashboard
+
+Despliegue
+
+Frontend → Vercel
+
+Backend → Render / Fly.io
+
+BD → Neon / Supabase
+
+🏁 Roadmap resumido por Sprints
+Sprint 1
+
+Base del proyecto + CRUD eventos + Registro graduados
+
+Sprint 2
+
+Plan de pagos + OpenPay tarjeta
+
+Sprint 3
+
+OpenPay SPEI + webhooks
+
+Sprint 4
+
+Cobranza presencial (efectivo)
+
+Sprint 5
+
+Dashboards + reportes
+
+Sprint 6
+
+Croquis interactivo
+
+Sprint 7
+
+Termos + ajustes finales
+
+Sprint 8
+
+QA + seguridad + despliegue completo

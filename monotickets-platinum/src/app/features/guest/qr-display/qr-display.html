@@ -1,0 +1,80 @@
+<div class="qr-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Tu Código QR</h1>
+    </div>
+
+    <mat-card *ngIf="!loading && !error && qrData">
+        <div class="qr-section">
+            <div class="qr-wrapper">
+                <canvas #qrCanvas></canvas>
+            </div>
+
+            <div class="qr-info">
+                <mat-icon class="check-icon">check_circle</mat-icon>
+                <h2>¡Asistencia Confirmada!</h2>
+                <p class="subtitle">Presenta este código en la entrada del evento</p>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <mat-icon>event</mat-icon>
+                        <div>
+                            <strong>Válido hasta</strong>
+                            <p>{{ getExpirationDate() }}</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <mat-icon>qr_code</mat-icon>
+                        <div>
+                            <strong>Código</strong>
+                            <p>{{ inviteCode }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button mat-raised-button color="primary" (click)="downloadQr()">
+                <mat-icon>download</mat-icon>
+                Descargar QR
+            </button>
+
+            <button mat-raised-button color="accent" (click)="shareQr()">
+                <mat-icon>share</mat-icon>
+                Compartir
+            </button>
+
+            <button mat-stroked-button (click)="goBack()">
+                <mat-icon>arrow_back</mat-icon>
+                Volver a Invitación
+            </button>
+        </div>
+
+        <div class="instructions">
+            <mat-icon>info</mat-icon>
+            <p>
+                <strong>Instrucciones:</strong> Guarda este código QR en tu teléfono o imprímelo.
+                Deberás presentarlo en la entrada del evento para registrar tu asistencia.
+            </p>
+        </div>
+    </mat-card>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading">
+        <mat-spinner></mat-spinner>
+        <p>Cargando código QR...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-container" *ngIf="error">
+        <mat-icon>error_outline</mat-icon>
+        <h2>{{ error }}</h2>
+        <button mat-raised-button color="primary" (click)="goBack()">
+            Volver a Invitación
+        </button>
+    </div>
+</div>

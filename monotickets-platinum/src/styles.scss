@@ -1,0 +1,491 @@
+// ===================================================================
+// 🎨 MONOTICKETS PLATINUM - GLOBAL STYLES
+// ===================================================================
+
+// Angular Material Theme (MUST be first - @use before @import)
+@use '@angular/material' as mat;
+
+// Google Fonts - Tipografía Corporativa
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+// Material Symbols (Sharp/Bold para Staff Scanner)
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
+// Tabler Icons
+@import '@tabler/icons-webfont/dist/tabler-icons.min.css';
+
+// Design System Monotickets
+@import './app/styles/design-system.scss';
+
+// Icon Utilities
+@import './app/styles/icon-utilities.scss';
+
+// Configure Angular Material Theme with Monotickets colors
+html {
+  @include mat.theme((color: (primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    ));
+
+  // Override Material colors with Monotickets palette using CSS variables
+  --mat-sys-primary: var(--mono-cyan);
+  --mat-sys-on-primary: var(--mono-white);
+  --mat-sys-primary-container: var(--mono-navy-light);
+  --mat-sys-on-primary-container: var(--mono-white);
+
+  --mat-sys-secondary: var(--mono-navy);
+  --mat-sys-on-secondary: var(--mono-white);
+
+  --mat-sys-surface: var(--mono-bg);
+  --mat-sys-on-surface: var(--mono-text);
+  --mat-sys-surface-variant: var(--mono-bg-elevated);
+
+  --mat-sys-error: var(--color-error);
+  --mat-sys-on-error: var(--mono-white);
+}
+
+// ===================================================================
+// 🌐 GLOBAL RESETS
+// ===================================================================
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--mono-text);
+  background-color: var(--mono-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ===================================================================
+// 🎯 TIPOGRAFÍA GLOBAL
+// ===================================================================
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  color: var(--mono-text);
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--text-5xl);
+}
+
+h2 {
+  font-size: var(--text-4xl);
+}
+
+h3 {
+  font-size: var(--text-3xl);
+}
+
+h4 {
+  font-size: var(--text-2xl);
+}
+
+h5 {
+  font-size: var(--text-xl);
+}
+
+h6 {
+  font-size: var(--text-lg);
+}
+
+p {
+  margin: 0 0 var(--space-4) 0;
+  line-height: var(--leading-normal);
+}
+
+a {
+  color: var(--mono-cyan);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: var(--mono-cyan-light);
+  }
+}
+
+// ===================================================================
+// 🎨 MATERIAL OVERRIDES - MONOTICKETS THEME
+// ===================================================================
+
+// ===== BUTTONS =====
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button {
+  border-radius: var(--radius-lg) !important;
+  font-family: var(--font-body) !important;
+  font-weight: var(--font-semibold) !important;
+  transition: all var(--transition-base) !important;
+  text-transform: none !important;
+
+  &:hover:not([disabled]) {
+    transform: translateY(-2px);
+  }
+}
+
+// Primary buttons (Cyan)
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary {
+  background-color: var(--mono-cyan) !important;
+  color: var(--mono-white) !important;
+
+  &:hover:not([disabled]) {
+    background-color: var(--mono-cyan-light) !important;
+    box-shadow: var(--shadow-cyan) !important;
+  }
+}
+
+// Secondary buttons (Navy)
+.mat-mdc-raised-button.mat-accent,
+.mat-mdc-unelevated-button.mat-accent {
+  background-color: var(--mono-navy) !important;
+  color: var(--mono-white) !important;
+
+  &:hover:not([disabled]) {
+    background-color: var(--mono-navy-light) !important;
+    box-shadow: var(--shadow-md) !important;
+  }
+}
+
+// Outlined buttons
+.mat-mdc-outlined-button {
+  border-color: var(--mono-cyan) !important;
+  color: var(--mono-cyan) !important;
+
+  &:hover:not([disabled]) {
+    background-color: rgba(75, 163, 255, 0.1) !important;
+    border-color: var(--mono-cyan-light) !important;
+  }
+}
+
+// Text buttons
+.mat-mdc-button {
+  color: var(--mono-cyan) !important;
+
+  &:hover:not([disabled]) {
+    background-color: rgba(75, 163, 255, 0.1) !important;
+  }
+}
+
+// ===== CARDS =====
+.mat-mdc-card {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  transition: all var(--transition-base) !important;
+  background: var(--mono-white) !important;
+
+  &:hover {
+    box-shadow: var(--shadow-lg) !important;
+  }
+}
+
+.mat-mdc-card-header {
+  .mat-mdc-card-title {
+    font-family: var(--font-heading) !important;
+    color: var(--mono-navy) !important;
+  }
+
+  .mat-mdc-card-subtitle {
+    font-family: var(--font-body) !important;
+    color: var(--mono-gray-dark) !important;
+  }
+}
+
+// ===== FORM FIELDS =====
+.mat-mdc-form-field {
+  font-family: var(--font-body) !important;
+
+  .mat-mdc-text-field-wrapper {
+    border-radius: var(--radius-md) !important;
+  }
+
+  // Label colors
+  .mat-mdc-floating-label {
+    color: var(--mono-gray-dark) !important;
+  }
+
+  // Focused state
+  &.mat-focused {
+    .mat-mdc-floating-label {
+      color: var(--mono-cyan) !important;
+    }
+
+    .mdc-line-ripple::after {
+      border-bottom-color: var(--mono-cyan) !important;
+    }
+  }
+
+  // Error state
+  &.mat-form-field-invalid {
+    .mat-mdc-floating-label {
+      color: var(--color-error) !important;
+    }
+  }
+}
+
+// Input fields
+.mat-mdc-input-element {
+  font-family: var(--font-body) !important;
+  color: var(--mono-navy) !important;
+
+  &::placeholder {
+    color: var(--mono-gray-light) !important;
+  }
+}
+
+// ===== DIALOGS =====
+.mat-mdc-dialog-container {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-xl) !important;
+
+  .mat-mdc-dialog-title {
+    font-family: var(--font-heading) !important;
+    color: var(--mono-navy) !important;
+  }
+
+  .mat-mdc-dialog-content {
+    font-family: var(--font-body) !important;
+    color: var(--mono-text) !important;
+  }
+}
+
+// ===== SNACKBARS =====
+.mat-mdc-snack-bar-container {
+  border-radius: var(--radius-lg) !important;
+
+  &.success-snackbar {
+    background-color: var(--color-success) !important;
+    color: var(--mono-white) !important;
+  }
+
+  &.error-snackbar {
+    background-color: var(--color-error) !important;
+    color: var(--mono-white) !important;
+  }
+
+  &.info-snackbar {
+    background-color: var(--mono-cyan) !important;
+    color: var(--mono-white) !important;
+  }
+}
+
+// ===== TOOLTIPS =====
+.mat-mdc-tooltip {
+  background-color: var(--mono-navy) !important;
+  color: var(--mono-white) !important;
+  font-family: var(--font-body) !important;
+  font-size: var(--text-sm) !important;
+}
+
+// ===== PROGRESS BARS & SPINNERS =====
+.mat-mdc-progress-bar {
+  .mdc-linear-progress__bar-inner {
+    border-color: var(--mono-cyan) !important;
+  }
+}
+
+.mat-mdc-progress-spinner {
+  circle {
+    stroke: var(--mono-cyan) !important;
+  }
+}
+
+// ===== TABS =====
+.mat-mdc-tab-group {
+  .mat-mdc-tab-label {
+    font-family: var(--font-subheading) !important;
+    color: var(--mono-gray-dark) !important;
+
+    &.mat-mdc-tab-label-active {
+      color: var(--mono-cyan) !important;
+    }
+  }
+
+  .mat-mdc-tab-header {
+    border-bottom: 2px solid var(--mono-gray-neutral) !important;
+  }
+
+  .mat-ink-bar {
+    background-color: var(--mono-cyan) !important;
+    height: 3px !important;
+  }
+}
+
+// ===== CHECKBOXES & RADIO BUTTONS =====
+.mat-mdc-checkbox {
+  .mdc-checkbox__background {
+    border-radius: var(--radius-sm) !important;
+  }
+
+  &.mat-mdc-checkbox-checked {
+    .mdc-checkbox__background {
+      background-color: var(--mono-cyan) !important;
+      border-color: var(--mono-cyan) !important;
+    }
+  }
+}
+
+.mat-mdc-radio-button {
+  &.mat-mdc-radio-checked {
+
+    .mdc-radio__outer-circle,
+    .mdc-radio__inner-circle {
+      border-color: var(--mono-cyan) !important;
+    }
+
+    .mdc-radio__inner-circle {
+      background-color: var(--mono-cyan) !important;
+    }
+  }
+}
+
+// ===== CHIPS =====
+.mat-mdc-chip {
+  border-radius: var(--radius-full) !important;
+  font-family: var(--font-body) !important;
+
+  &.mat-mdc-chip-selected {
+    background-color: var(--mono-cyan) !important;
+    color: var(--mono-white) !important;
+  }
+}
+
+// ===== MENUS =====
+.mat-mdc-menu-panel {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+
+  .mat-mdc-menu-item {
+    font-family: var(--font-body) !important;
+    color: var(--mono-navy) !important;
+
+    &:hover {
+      background-color: rgba(75, 163, 255, 0.1) !important;
+    }
+  }
+}
+
+// ===== SLIDERS =====
+.mat-mdc-slider {
+  .mdc-slider__track--active_fill {
+    border-color: var(--mono-cyan) !important;
+  }
+
+  .mdc-slider__thumb-knob {
+    background-color: var(--mono-cyan) !important;
+    border-color: var(--mono-cyan) !important;
+  }
+}
+
+// ===================================================================
+// 📱 SCROLLBAR PERSONALIZADO
+// ===================================================================
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--mono-gray-neutral);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mono-cyan);
+  border-radius: var(--radius-full);
+
+  &:hover {
+    background: var(--mono-cyan-light);
+  }
+}
+
+// ===================================================================
+// 🎭 ANIMACIONES GLOBALES
+// ===================================================================
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Clases de animación
+.animate-fade-in {
+  animation: fadeIn var(--transition-base);
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp var(--transition-base);
+}
+
+.animate-slide-in-right {
+  animation: slideInRight var(--transition-base);
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}

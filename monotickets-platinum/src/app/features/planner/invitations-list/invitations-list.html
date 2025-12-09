@@ -1,0 +1,119 @@
+<div class="invitations-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Invitaciones del Evento</h1>
+        <div class="header-actions">
+            <button mat-raised-button [disabled]="selection.selected.length === 0" (click)="openDeliveryPanel()"
+                class="send-btn">
+                <mat-icon>send</mat-icon>
+                Enviar Invitaciones ({{ selection.selected.length }})
+            </button>
+            <button mat-raised-button color="primary" (click)="generateInvitations()">
+                <mat-icon>add</mat-icon>
+                Generar Invitaciones
+            </button>
+        </div>
+    </div>
+
+    <mat-card class="filters-card">
+        <mat-form-field>
+            <mat-label>Estado</mat-label>
+            <mat-select [formControl]="statusFilter">
+                <mat-option value="">Todos</mat-option>
+                @for (status of invitationStatuses; track status) {
+                <mat-option [value]="status">{{ getStatusLabel(status) }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+    </mat-card>
+
+    <mat-card>
+        @if (loading) {
+        <div class="loading-container">
+            <mat-spinner></mat-spinner>
+            <p>Cargando invitaciones...</p>
+        </div>
+        } @else {
+        <table mat-table [dataSource]="invitations" class="invitations-table">
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef>
+                    <mat-checkbox (change)="$event ? toggleAllRows() : null"
+                        [checked]="selection.hasValue() && isAllSelected()"
+                        [indeterminate]="selection.hasValue() && !isAllSelected()">
+                    </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                    <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                        [checked]="selection.isSelected(row)">
+                    </mat-checkbox>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="inviteCode">
+                <th mat-header-cell *matHeaderCellDef>Código</th>
+                <td mat-cell *matCellDef="let inv"><strong>{{ inv.inviteCode }}</strong></td>
+            </ng-container>
+
+            <ng-container matColumnDef="guestCount">
+                <th mat-header-cell *matHeaderCellDef>Invitados</th>
+                <td mat-cell *matCellDef="let inv">{{ inv.guestCount }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="inviteType">
+                <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                <td mat-cell *matCellDef="let inv">
+                    <mat-chip>{{ inv.inviteType }}</mat-chip>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Estado</th>
+                <td mat-cell *matCellDef="let inv">
+                    <mat-chip [color]="getStatusColor(inv.status)">
+                        {{ getStatusLabel(inv.status) }}
+                    </mat-chip>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="sentAt">
+                <th mat-header-cell *matHeaderCellDef>Enviado</th>
+                <td mat-cell *matCellDef="let inv">
+                    {{ inv.sentAt ? (inv.sentAt | date:'short') : '-' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                <td mat-cell *matCellDef="let inv">
+                    <button mat-icon-button (click)="viewQR(inv)" matTooltip="Ver QR">
+                        <mat-icon>qr_code</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="resendInvitation(inv)" matTooltip="Reenviar">
+                        <mat-icon>send</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        @if (invitations.length === 0) {
+        <div class="no-data">
+            <mat-icon>mail_outline</mat-icon>
+            <p>No hay invitaciones generadas</p>
+            <button mat-raised-button color="primary" (click)="generateInvitations()">
+                Generar Invitaciones
+            </button>
+        </div>
+        }
+
+        <mat-paginator [length]="totalInvitations" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]"
+            (page)="onPageChange($event)">
+        </mat-paginator>
+        }
+    </mat-card>
+</div>

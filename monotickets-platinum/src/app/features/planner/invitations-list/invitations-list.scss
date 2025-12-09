@@ -1,0 +1,80 @@
+.invitations-container {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    h1 {
+        flex: 1;
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+}
+
+.filters-card {
+    margin-bottom: 24px;
+    padding: 20px !important;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+
+    p {
+        margin-top: 16px;
+        color: #666;
+    }
+}
+
+.invitations-table {
+    width: 100%;
+
+    mat-chip {
+        font-size: 12px;
+        min-height: 28px;
+    }
+}
+
+.no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+
+    mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        margin-bottom: 16px;
+    }
+
+    p {
+        margin: 0 0 16px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .invitations-container {
+        padding: 16px;
+    }
+
+    .header {
+        flex-wrap: wrap;
+
+        h1 {
+            font-size: 24px;
+        }
+    }
+}

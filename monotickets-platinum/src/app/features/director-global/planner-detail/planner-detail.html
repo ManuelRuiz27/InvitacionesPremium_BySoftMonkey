@@ -1,0 +1,72 @@
+<div class="planner-detail-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Detalle del Planner</h1>
+    </div>
+
+    @if (loading) {
+    <div class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Cargando información...</p>
+    </div>
+    } @else if (plannerMetrics) {
+    <mat-card class="info-card">
+        <mat-card-header>
+            <mat-card-title>{{ plannerMetrics.plannerName }}</mat-card-title>
+            <mat-card-subtitle>{{ plannerMetrics.orgName }}</mat-card-subtitle>
+        </mat-card-header>
+    </mat-card>
+
+    <div class="metrics-grid">
+        <mat-card class="metric-card">
+            <mat-card-content>
+                <div class="metric-icon events">
+                    <mat-icon>event</mat-icon>
+                </div>
+                <div class="metric-info">
+                    <h3>{{ plannerMetrics.totalEvents }}</h3>
+                    <p>Eventos Creados</p>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="metric-card">
+            <mat-card-content>
+                <div class="metric-icon invitations">
+                    <mat-icon>mail</mat-icon>
+                </div>
+                <div class="metric-info">
+                    <h3>{{ plannerMetrics.totalInvitations }}</h3>
+                    <p>Invitaciones Generadas</p>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="metric-card">
+            <mat-card-content>
+                <div class="metric-icon confirmations">
+                    <mat-icon>check_circle</mat-icon>
+                </div>
+                <div class="metric-info">
+                    <h3>{{ plannerMetrics.totalConfirmations }}</h3>
+                    <p>Confirmaciones</p>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="metric-card">
+            <mat-card-content>
+                <div class="metric-icon scans">
+                    <mat-icon>qr_code_scanner</mat-icon>
+                </div>
+                <div class="metric-info">
+                    <h3>{{ plannerMetrics.totalScans }}</h3>
+                    <p>Escaneos</p>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+    }
+</div>

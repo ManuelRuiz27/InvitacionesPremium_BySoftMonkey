@@ -1,0 +1,204 @@
+// ===================================================================
+// 🎨 LOGIN - MONOTICKETS PLATINUM
+// ===================================================================
+// Diseño premium con identidad corporativa Monotickets
+// Navy background + Cyan accents + Montserrat typography
+// ===================================================================
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: var(--space-6);
+
+  // Background: Navy sólido con patrón sutil
+  background: var(--mono-navy);
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(75, 163, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(75, 163, 255, 0.08) 0%, transparent 50%);
+
+  position: relative;
+  overflow: hidden;
+
+  // Efecto de brillo sutil animado
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(75, 163, 255, 0.03) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.login-card {
+  width: 100%;
+  max-width: 450px;
+  padding: var(--space-8);
+  background: var(--mono-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2xl);
+  position: relative;
+  z-index: 1;
+
+  // Animación de entrada
+  animation: fadeInUp var(--transition-slow) ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ===== HEADER =====
+.login-header {
+  text-align: center;
+  margin-bottom: var(--space-6);
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    color: var(--mono-navy);
+    margin: 0 0 var(--space-2) 0;
+    letter-spacing: -0.5px;
+  }
+
+  p {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--mono-gray-dark);
+    margin: 0;
+  }
+}
+
+// ===== FORM FIELDS =====
+.full-width {
+  width: 100%;
+  margin-bottom: var(--space-4);
+}
+
+mat-form-field {
+  width: 100%;
+
+  mat-icon[matPrefix] {
+    margin-right: var(--space-2);
+    color: var(--mono-gray-dark);
+  }
+}
+
+// ===== BUTTONS =====
+.login-button {
+  width: 100%;
+  height: 48px;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-lg);
+  text-transform: none;
+  letter-spacing: 0.3px;
+  margin-top: var(--space-2);
+
+  // Primary button (Cyan)
+  &.mat-mdc-raised-button.mat-primary {
+    background: var(--mono-cyan);
+    color: var(--mono-white);
+    box-shadow: var(--shadow-md);
+
+    &:hover:not([disabled]) {
+      background: var(--mono-cyan-light);
+      box-shadow: var(--shadow-cyan);
+      transform: translateY(-2px);
+    }
+
+    &:active:not([disabled]) {
+      transform: translateY(0);
+    }
+
+    &[disabled] {
+      background: var(--mono-gray-neutral);
+      color: var(--mono-gray-light);
+    }
+  }
+
+  mat-spinner {
+    display: inline-block;
+    margin: 0 auto;
+  }
+}
+
+// ===== ERROR MESSAGES =====
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--color-error);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  border-left: 3px solid var(--color-error);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--color-error);
+  }
+
+  span {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    flex: 1;
+  }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+  .login-container {
+    padding: var(--space-4);
+  }
+
+  .login-card {
+    padding: var(--space-6);
+  }
+
+  .login-header {
+    h1 {
+      font-size: var(--text-2xl);
+    }
+  }
+}
+
+// ===== ACCESSIBILITY =====
+@media (prefers-reduced-motion: reduce) {
+
+  .login-card,
+  .login-container::before {
+    animation: none;
+  }
+
+  .login-button:hover {
+    transform: none;
+  }
+}

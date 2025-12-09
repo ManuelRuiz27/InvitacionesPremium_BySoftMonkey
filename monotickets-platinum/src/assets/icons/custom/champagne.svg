@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Copa de champagne elegante -->
+  <path d="M8 22h8"/>
+  <path d="M12 15v7"/>
+  <path d="M6 3h12l-2 8a4 4 0 01-8 0L6 3z"/>
+  <circle cx="12" cy="6" r="1" fill="currentColor"/>
+  <circle cx="10" cy="8" r="0.5" fill="currentColor" opacity="0.6"/>
+  <circle cx="14" cy="7" r="0.5" fill="currentColor" opacity="0.6"/>
+</svg>

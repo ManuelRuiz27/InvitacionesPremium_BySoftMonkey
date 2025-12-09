@@ -1,0 +1,76 @@
+.planners-container {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+
+    p {
+        margin-top: 16px;
+        color: #666;
+        font-size: 16px;
+    }
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.planners-table {
+    width: 100%;
+
+    th {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    td {
+        color: #6b7280;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background-color: #e0e7ff;
+        color: #4338ca;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    button {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+}
+
+@media (max-width: 768px) {
+    .planners-container {
+        padding: 16px;
+    }
+
+    .header h1 {
+        font-size: 24px;
+    }
+}

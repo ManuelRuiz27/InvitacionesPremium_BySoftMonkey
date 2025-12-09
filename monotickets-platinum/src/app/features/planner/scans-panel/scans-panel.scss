@@ -1,0 +1,233 @@
+// Optimized Premium Theme - Scans Panel
+@import '../../../styles/theme-variables';
+
+.scans-panel {
+    background: $primary-black;
+    color: $platinum;
+    padding: 32px;
+    border-radius: 12px;
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+
+        h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: $platinum;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            mat-icon {
+                color: $gold;
+                font-size: 32px;
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        button {
+            background: $gold;
+            color: $primary-black;
+            font-weight: 600;
+
+            &:hover { background: $light-gold; }
+        }
+    }
+
+    .stats-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+
+        .stat-card {
+            background: $deep-black;
+            border: 1px solid $dark-silver;
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+
+            &:hover {
+                border-color: $gold;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+            }
+
+            .stat-content {
+                .stat-value {
+                    font-size: 36px;
+                    font-weight: 700;
+                    color: $platinum;
+                    line-height: 1;
+                    margin-bottom: 8px;
+                }
+
+                .stat-label {
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    color: $dark-silver;
+                }
+            }
+
+            mat-icon {
+                font-size: 48px;
+                width: 48px;
+                height: 48px;
+                color: $silver;
+                opacity: 0.5;
+            }
+
+            &.primary {
+                border-color: $gold;
+                background: linear-gradient(135deg, $deep-black 0%, rgba(212, 175, 55, 0.1) 100%);
+
+                .stat-value { color: $gold; }
+                mat-icon { color: $gold; opacity: 1; }
+            }
+
+            &.success mat-icon { color: #10b981; opacity: 1; }
+            &.warning mat-icon { color: #f59e0b; opacity: 1; }
+        }
+    }
+
+    .filters-section {
+        margin-bottom: 24px;
+
+        mat-button-toggle-group {
+            background: $deep-black;
+            border: 1px solid $dark-silver;
+            border-radius: 8px;
+
+            mat-button-toggle {
+                color: $silver;
+                padding: 12px 24px;
+                font-weight: 500;
+
+                &.mat-button-toggle-checked {
+                    background: $gold;
+                    color: $primary-black;
+                }
+
+                &:hover:not(.mat-button-toggle-checked) {
+                    background: $soft-black;
+                }
+            }
+        }
+    }
+
+    .table-section {
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 20px;
+
+            p { color: $silver; }
+        }
+
+        table {
+            width: 100%;
+            background: $deep-black;
+            border-radius: 8px;
+
+            th {
+                background: $soft-black;
+                color: $dark-silver;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-weight: 600;
+                padding: 16px;
+                border-bottom: 2px solid $gold;
+            }
+
+            td {
+                color: $silver;
+                padding: 16px;
+                border-bottom: 1px solid $soft-black;
+            }
+
+            tr:hover { background: $soft-black; }
+
+            mat-chip {
+                font-size: 11px;
+                font-weight: 600;
+                height: 28px;
+                padding: 0 12px;
+                border-radius: 14px;
+
+                &.chip-count {
+                    background: $soft-black;
+                    color: $platinum;
+                    border: 1px solid $dark-silver;
+                }
+
+                &.chip-valid { background: #10b981; color: white; }
+                &.chip-duplicate { background: #f59e0b; color: white; }
+                &.chip-expired, &.chip-invalid { background: #ef4444; color: white; }
+            }
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 80px 20px;
+            color: $dark-silver;
+
+            mat-icon {
+                font-size: 72px;
+                width: 72px;
+                height: 72px;
+                margin-bottom: 16px;
+                opacity: 0.3;
+            }
+
+            p {
+                margin: 0 0 8px;
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            span {
+                font-size: 14px;
+                opacity: 0.7;
+            }
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .scans-panel {
+        padding: 20px;
+
+        .header {
+            flex-direction: column;
+            gap: 16px;
+
+            button { width: 100%; }
+        }
+
+        .stats-section { grid-template-columns: 1fr; }
+
+        .filters-section mat-button-toggle-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+
+            mat-button-toggle { width: 100%; }
+        }
+
+        .table-section { overflow-x: auto; }
+    }
+}

@@ -1,0 +1,182 @@
+// ===================================================================
+// 🎨 DIRECTOR DASHBOARD - MONOTICKETS PLATINUM
+// ===================================================================
+
+.dashboard-container {
+    padding: var(--space-6);
+    max-width: 1400px;
+    margin: 0 auto;
+    background: var(--mono-bg);
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-8);
+
+    h1 {
+        margin: 0;
+        font-family: var(--font-heading);
+        font-size: var(--text-4xl);
+        font-weight: var(--font-bold);
+        color: var(--mono-navy);
+    }
+
+    p {
+        margin: var(--space-1) 0 0;
+        font-family: var(--font-body);
+        color: var(--mono-gray-dark);
+        font-size: var(--text-base);
+    }
+}
+
+// ===== METRICS GRID =====
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+}
+
+// ===== REVENUE CARDS =====
+.revenue-card {
+    background: var(--mono-white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-4px);
+    }
+
+    // Border left accent
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--mono-cyan);
+    }
+
+    &.planners::before {
+        background: var(--mono-navy);
+    }
+
+    &.events::before {
+        background: var(--color-success);
+    }
+
+    &.growth::before {
+        background: var(--mono-cyan-light);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: var(--space-4);
+
+        .icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            background: var(--mono-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: var(--space-3);
+
+            mat-icon {
+                color: var(--mono-white);
+                font-size: 24px;
+            }
+        }
+
+        h3 {
+            margin: 0;
+            font-family: var(--font-body);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            color: var(--mono-gray-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    &.planners .icon {
+        background: var(--mono-navy);
+    }
+
+    &.events .icon {
+        background: var(--color-success);
+    }
+
+    &.growth .icon {
+        background: var(--mono-cyan-light);
+    }
+
+    .card-value {
+        font-family: var(--font-subheading);
+        font-size: var(--text-5xl);
+        font-weight: var(--font-bold);
+        color: var(--mono-navy);
+        margin: 0 0 var(--space-2) 0;
+    }
+
+    .card-subtitle {
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        color: var(--mono-gray-dark);
+        margin: 0;
+    }
+}
+
+// ===== CHARTS =====
+.charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+}
+
+.chart-card {
+    background: var(--mono-white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+
+    h2 {
+        margin: 0 0 var(--space-6) 0;
+        font-family: var(--font-heading);
+        font-size: var(--text-xl);
+        font-weight: var(--font-semibold);
+        color: var(--mono-navy);
+    }
+
+    .chart-container {
+        height: 300px;
+    }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 1024px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: var(--space-4);
+    }
+
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+}

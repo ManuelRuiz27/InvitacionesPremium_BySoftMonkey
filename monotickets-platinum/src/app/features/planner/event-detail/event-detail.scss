@@ -1,0 +1,159 @@
+.detail-container {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    h1 {
+        flex: 1;
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+    }
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+
+    p {
+        margin-top: 16px;
+        color: #666;
+    }
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+.info-card {
+    mat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    mat-card-title {
+        font-size: 24px;
+        font-weight: 600;
+    }
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+
+    .full-width {
+        grid-column: 1 / -1;
+    }
+}
+
+.info-item {
+    display: flex;
+    gap: 12px;
+
+    mat-icon {
+        color: #667eea;
+        margin-top: 4px;
+    }
+
+    label {
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    p {
+        margin: 0;
+        font-size: 16px;
+        color: #1f2937;
+        font-weight: 500;
+    }
+}
+
+.stats-card {
+    mat-card-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 8px;
+    background: #f9fafb;
+    margin-bottom: 12px;
+
+    mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #667eea;
+    }
+
+    .stat-value {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .stat-label {
+        margin: 0;
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+    }
+}
+
+@media (max-width: 768px) {
+    .detail-container {
+        padding: 16px;
+    }
+
+    .header {
+        flex-wrap: wrap;
+
+        .actions {
+            width: 100%;
+            justify-content: stretch;
+
+            button {
+                flex: 1;
+            }
+        }
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}

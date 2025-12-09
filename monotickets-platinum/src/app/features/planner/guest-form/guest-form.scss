@@ -1,0 +1,50 @@
+// ===================================================================
+// 🎨 GUEST FORM - MONOTICKETS PLATINUM
+// ===================================================================
+
+.form-container {
+    padding: var(--space-6);
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--mono-bg);
+}
+
+.form-card {
+    background: var(--mono-white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-md);
+}
+
+.form-header {
+    margin-bottom: var(--space-6);
+
+    h1 {
+        margin: 0;
+        font-family: var(--font-heading);
+        font-size: var(--text-3xl);
+        font-weight: var(--font-bold);
+        color: var(--mono-navy);
+    }
+}
+
+.form-section {
+    margin-bottom: var(--space-6);
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: flex-end;
+    margin-top: var(--space-6);
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: var(--space-4);
+    }
+
+    .form-card {
+        padding: var(--space-6);
+    }
+}

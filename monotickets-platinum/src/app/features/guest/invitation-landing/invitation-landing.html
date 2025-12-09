@@ -1,0 +1,153 @@
+<div class="landing-container" *ngIf="!loading && !error && invitationData">
+    <!-- Premium View -->
+    <div *ngIf="isPremium()" class="premium-view">
+        <!-- Cover Section -->
+        <section class="cover-section"
+            [style.background-image]="'url(' + (invitationData.event.customization?.coverImageUrl || '') + ')'">
+            <div class="cover-overlay">
+                <h1 class="event-title">{{ invitationData.event.name }}</h1>
+                <p class="event-date">{{ getEventDate() }}</p>
+            </div>
+        </section>
+
+        <!-- Event Info Section -->
+        <section class="info-section">
+            <mat-card>
+                <mat-card-header>
+                    <mat-icon>event</mat-icon>
+                    <h2>Información del Evento</h2>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="info-item">
+                        <mat-icon>schedule</mat-icon>
+                        <div>
+                            <strong>Fecha y Hora</strong>
+                            <p>{{ getEventDate() }} - {{ invitationData.event.time }}</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <mat-icon>location_on</mat-icon>
+                        <div>
+                            <strong>Ubicación</strong>
+                            <p>{{ invitationData.event.locationText }}</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item" *ngIf="invitationData.event.customization?.additionalInfo">
+                        <mat-icon>info</mat-icon>
+                        <div>
+                            <strong>Información Adicional</strong>
+                            <p>{{ invitationData.event.customization?.additionalInfo }}</p>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="gallery-section" *ngIf="invitationData.event.customization?.galleryImages?.length">
+            <mat-card>
+                <mat-card-header>
+                    <mat-icon>photo_library</mat-icon>
+                    <h2>Galería</h2>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="gallery-grid">
+                        <img *ngFor="let image of invitationData.event.customization?.galleryImages; let i = index"
+                            [src]="image" [alt]="'Foto ' + (i + 1)" (click)="openGalleryLightbox(i)"
+                            class="gallery-image">
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </section>
+
+        <!-- Map Section -->
+        <section class="map-section" *ngIf="invitationData.event.locationLat && invitationData.event.locationLng">
+            <mat-card>
+                <mat-card-header>
+                    <mat-icon>map</mat-icon>
+                    <h2>Ubicación</h2>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="map-container">
+                        <iframe [src]="getMapUrl()" width="100%" height="400" style="border:0;" allowfullscreen=""
+                            loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                    <button mat-raised-button color="primary" (click)="openMapDirections()" class="directions-btn">
+                        <mat-icon>directions</mat-icon>
+                        Cómo Llegar
+                    </button>
+                </mat-card-content>
+            </mat-card>
+        </section>
+
+        <!-- Gift Table Section -->
+        <section class="gift-section" *ngIf="invitationData.event.customization?.giftTableUrl">
+            <mat-card>
+                <mat-card-header>
+                    <mat-icon>card_giftcard</mat-icon>
+                    <h2>Mesa de Regalos</h2>
+                </mat-card-header>
+                <mat-card-content>
+                    <p>Tu presencia es nuestro mejor regalo, pero si deseas obsequiarnos algo:</p>
+                    <a [href]="invitationData.event.customization?.giftTableUrl" target="_blank" mat-raised-button
+                        color="primary">
+                        <mat-icon>open_in_new</mat-icon>
+                        Ver Mesa de Regalos
+                    </a>
+                </mat-card-content>
+            </mat-card>
+        </section>
+    </div>
+
+    <!-- PDF View -->
+    <div *ngIf="!isPremium()" class="pdf-view">
+        <mat-card>
+            <mat-card-header>
+                <h1>{{ invitationData.event.name }}</h1>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="pdf-info">
+                    <p><strong>Fecha:</strong> {{ getEventDate() }}</p>
+                    <p><strong>Hora:</strong> {{ invitationData.event.time }}</p>
+                    <p><strong>Lugar:</strong> {{ invitationData.event.locationText }}</p>
+                </div>
+
+                <div class="pdf-viewer" *ngIf="invitationData.invitation.pdfUrl">
+                    <a [href]="invitationData.invitation.pdfUrl" target="_blank" mat-raised-button color="primary">
+                        <mat-icon>picture_as_pdf</mat-icon>
+                        Ver Invitación PDF
+                    </a>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <!-- Actions Section (Common for both views) -->
+    <section class="actions-section">
+        <button mat-raised-button color="primary" (click)="goToRsvp()" class="action-btn">
+            <mat-icon>check_circle</mat-icon>
+            Confirmar Asistencia
+        </button>
+
+        <button mat-stroked-button (click)="downloadCalendar()" class="action-btn">
+            <mat-icon>event</mat-icon>
+            Agregar al Calendario
+        </button>
+    </section>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading">
+    <mat-spinner></mat-spinner>
+    <p>Cargando invitación...</p>
+</div>
+
+<!-- Error State -->
+<div class="error-container" *ngIf="error">
+    <mat-icon>error_outline</mat-icon>
+    <h2>{{ error }}</h2>
+    <p>Por favor verifica el código de invitación</p>
+</div>

@@ -1,0 +1,80 @@
+<div class="upload-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Importar Invitados desde CSV</h1>
+    </div>
+
+    <mat-card>
+        @if (!file) {
+        <div class="drop-zone" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+            <mat-icon>cloud_upload</mat-icon>
+            <h2>Arrastra tu archivo CSV aquí</h2>
+            <p>o</p>
+            <input type="file" accept=".csv" #fileInput (change)="onFileSelected($event)" style="display: none">
+            <button mat-raised-button color="primary" (click)="fileInput.click()">
+                Seleccionar Archivo
+            </button>
+            <p class="hint">Formato: nombre, teléfono, email (opcional)</p>
+        </div>
+        } @else {
+        <div class="preview-section">
+            <h3>Vista Previa (primeras 5 filas)</h3>
+
+            @if (previewData.length > 0) {
+            <table mat-table [dataSource]="previewData" class="preview-table">
+                <ng-container matColumnDef="fullName">
+                    <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                    <td mat-cell *matCellDef="let row">{{ row.fullName || row.nombre || row.name }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="phone">
+                    <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+                    <td mat-cell *matCellDef="let row">{{ row.phone || row.telefono || row.tel }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef>Email</th>
+                    <td mat-cell *matCellDef="let row">{{ row.email || row.correo || '-' }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="['fullName', 'phone', 'email']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['fullName', 'phone', 'email'];"></tr>
+            </table>
+
+            <div class="actions">
+                <button mat-stroked-button (click)="file = null; previewData = []" [disabled]="uploading">
+                    Cancelar
+                </button>
+                <button mat-raised-button color="primary" (click)="uploadCSV()" [disabled]="uploading">
+                    @if (uploading) {
+                    Importando...
+                    } @else {
+                    Importar Invitados
+                    }
+                </button>
+            </div>
+
+            @if (uploading) {
+            <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+            }
+
+            @if (result) {
+            <div class="result">
+                <mat-icon [class.success]="result.errors.length === 0" [class.warning]="result.errors.length > 0">
+                    {{ result.errors.length === 0 ? 'check_circle' : 'warning' }}
+                </mat-icon>
+                <div>
+                    <p><strong>{{ result.imported }} invitados importados</strong></p>
+                    @if (result.errors.length > 0) {
+                    <p class="errors">{{ result.errors.length }} errores encontrados</p>
+                    }
+                </div>
+            </div>
+            }
+            }
+        </div>
+        }
+    </mat-card>
+</div>

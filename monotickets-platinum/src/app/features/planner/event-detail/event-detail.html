@@ -1,0 +1,172 @@
+<div class="detail-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Detalle del Evento</h1>
+        @if (event) {
+        <div class="actions">
+            <button mat-raised-button color="primary" (click)="editEvent()">
+                <mat-icon>edit</mat-icon>
+                Editar
+            </button>
+            <button mat-raised-button color="warn" (click)="deleteEvent()">
+                <mat-icon>delete</mat-icon>
+                Eliminar
+            </button>
+        </div>
+        }
+    </div>
+
+    @if (loading) {
+    <div class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Cargando evento...</p>
+    </div>
+    } @else if (event) {
+    <div class="content-grid">
+        <!-- Main Info Card -->
+        <mat-card class="info-card">
+            <mat-card-header>
+                <mat-card-title>{{ event.name }}</mat-card-title>
+                <mat-chip [color]="getStatusColor(event.status)">
+                    {{ getStatusLabel(event.status) }}
+                </mat-chip>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <mat-icon>category</mat-icon>
+                        <div>
+                            <label>Tipo</label>
+                            <p>{{ getTypeLabel(event.type) }}</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <mat-icon>event</mat-icon>
+                        <div>
+                            <label>Fecha</label>
+                            <p>{{ formatDate(event.date) }}</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <mat-icon>schedule</mat-icon>
+                        <div>
+                            <label>Hora</label>
+                            <p>{{ event.time }}</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item full-width">
+                        <mat-icon>location_on</mat-icon>
+                        <div>
+                            <label>Ubicación</label>
+                            <p>{{ event.locationText }}</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <mat-icon>palette</mat-icon>
+                        <div>
+                            <label>Plantilla</label>
+                            <p>{{ event.templateType === 'PREMIUM' ? 'Premium' : 'PDF' }}</p>
+                        </div>
+                    </div>
+
+                    @if (event.templateVariant) {
+                    <div class="info-item">
+                        <mat-icon>style</mat-icon>
+                        <div>
+                            <label>Variante</label>
+                            <p>{{ event.templateVariant }}</p>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Quick Stats Card -->
+        <mat-card class="stats-card">
+            <mat-card-header>
+                <mat-card-title>Estadísticas Rápidas</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="stat-item">
+                    <mat-icon>mail</mat-icon>
+                    <div>
+                        <p class="stat-value">0</p>
+                        <p class="stat-label">Invitaciones</p>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <mat-icon>check_circle</mat-icon>
+                    <div>
+                        <p class="stat-value">0</p>
+                        <p class="stat-label">Confirmaciones</p>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <mat-icon>qr_code_scanner</mat-icon>
+                    <div>
+                        <p class="stat-value">0</p>
+                        <p class="stat-label">Escaneos</p>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Action Buttons Card -->
+        <mat-card class="actions-card full-width">
+            <mat-card-header>
+                <mat-card-title>Gestión del Evento</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="action-buttons">
+                    <button mat-raised-button class="action-btn guests-btn" (click)="navigateToGuests()">
+                        <mat-icon>people</mat-icon>
+                        <div class="btn-content">
+                            <span class="btn-title">Invitados</span>
+                            <span class="btn-subtitle">Gestionar lista de invitados</span>
+                        </div>
+                    </button>
+
+                    <button mat-raised-button class="action-btn invitations-btn" (click)="navigateToInvitations()">
+                        <mat-icon>mail</mat-icon>
+                        <div class="btn-content">
+                            <span class="btn-title">Invitaciones</span>
+                            <span class="btn-subtitle">Enviar y gestionar invitaciones</span>
+                        </div>
+                    </button>
+
+                    <button mat-raised-button class="action-btn scans-btn" (click)="viewScans()">
+                        <mat-icon>qr_code_scanner</mat-icon>
+                        <div class="btn-content">
+                            <span class="btn-title">Escaneos</span>
+                            <span class="btn-subtitle">Ver asistencia en tiempo real</span>
+                        </div>
+                    </button>
+
+                    <button mat-raised-button class="action-btn rsvp-btn" (click)="manageRSVP()">
+                        <mat-icon>link</mat-icon>
+                        <div class="btn-content">
+                            <span class="btn-title">RSVP Público</span>
+                            <span class="btn-subtitle">Generar formulario de registro</span>
+                        </div>
+                    </button>
+
+                    <button mat-raised-button class="action-btn host-btn" (click)="manageHostLinks()">
+                        <mat-icon>admin_panel_settings</mat-icon>
+                        <div class="btn-content">
+                            <span class="btn-title">Links Anfitriones</span>
+                            <span class="btn-subtitle">Gestionar accesos de anfitriones</span>
+                        </div>
+                    </button>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+    }
+</div>

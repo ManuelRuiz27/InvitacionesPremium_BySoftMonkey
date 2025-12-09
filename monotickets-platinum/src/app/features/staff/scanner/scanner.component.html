@@ -1,0 +1,72 @@
+<div class="scanner-container">
+    <!-- Header -->
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Scanner</h1>
+        <button mat-icon-button (click)="viewHistory()">
+            <mat-icon>history</mat-icon>
+        </button>
+    </div>
+
+    <!-- Camera View -->
+    <div class="camera-view" *ngIf="hasPermission">
+        <zxing-scanner *ngIf="isScanning && !showFeedback" [device]="currentDevice" [formats]="allowedFormats"
+            (camerasFound)="onCamerasFound($event)" (permissionResponse)="onPermissionResponse($event)"
+            (scanSuccess)="onScanSuccess($event)" (scanError)="onScanError($event)"></zxing-scanner>
+
+        <!-- Feedback Overlay -->
+        <div class="feedback-overlay" *ngIf="showFeedback" [ngClass]="feedbackClass">
+            <div class="feedback-content">
+                <mat-icon class="feedback-icon">{{ feedbackIcon }}</mat-icon>
+
+                <h2 class="feedback-status">{{ lastScanResult?.status }}</h2>
+
+                <div class="feedback-details" *ngIf="lastScanResult">
+                    <p class="guest-name" *ngIf="lastScanResult.guestName">
+                        {{ lastScanResult.guestName }}
+                    </p>
+                    <p class="guest-count" *ngIf="lastScanResult.guestCount">
+                        {{ lastScanResult.guestCount }} {{ lastScanResult.guestCount === 1 ? 'persona' : 'personas' }}
+                    </p>
+                    <p class="message">{{ lastScanResult.message }}</p>
+                    <p class="timestamp">{{ lastScanResult.scannedAt | date:'HH:mm:ss' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Permission -->
+    <div class="no-permission" *ngIf="!hasPermission">
+        <mat-icon>camera_alt</mat-icon>
+        <h2>Permiso de cámara requerido</h2>
+        <p>Por favor permite el acceso a la cámara para escanear códigos QR</p>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <p class="instructions">Apunta la cámara al código QR del invitado</p>
+
+        <button mat-raised-button color="primary" (click)="toggleCamera()" *ngIf="availableDevices.length > 1">
+            <mat-icon>flip_camera_android</mat-icon>
+            Cambiar cámara
+        </button>
+    </div>
+
+    <!-- Recent Scans -->
+    <div class="recent-scans" *ngIf="scanHistory.length > 0">
+        <h3>Últimos escaneos</h3>
+        <div class="scan-list">
+            <div class="scan-item" *ngFor="let scan of scanHistory.slice(0, 5)"
+                [ngClass]="'scan-' + scan.status.toLowerCase()">
+                <mat-icon>{{ scan.status === 'VALID' ? 'check_circle' : scan.status === 'DUPLICATE' ? 'warning' :
+                    'cancel' }}</mat-icon>
+                <div class="scan-info">
+                    <p class="scan-name">{{ scan.guestName || 'QR Inválido' }}</p>
+                    <p class="scan-time">{{ scan.scannedAt | date:'HH:mm' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

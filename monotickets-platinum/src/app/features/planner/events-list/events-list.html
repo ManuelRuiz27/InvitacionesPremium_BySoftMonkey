@@ -1,0 +1,124 @@
+<div class="events-container">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>Mis Eventos</h1>
+        <button mat-raised-button color="primary" (click)="createEvent()">
+            <mat-icon>add</mat-icon>
+            Crear Evento
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <mat-card class="filters-card">
+        <div class="filters-grid">
+            <mat-form-field>
+                <mat-label>Buscar</mat-label>
+                <input matInput [formControl]="searchControl" placeholder="Nombre del evento">
+                <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Tipo</mat-label>
+                <mat-select [formControl]="typeFilter">
+                    <mat-option value="">Todos</mat-option>
+                    @for (type of eventTypes; track type) {
+                    <mat-option [value]="type">{{ getTypeLabel(type) }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Estado</mat-label>
+                <mat-select [formControl]="statusFilter">
+                    <mat-option value="">Todos</mat-option>
+                    @for (status of eventStatuses; track status) {
+                    <mat-option [value]="status">{{ getStatusLabel(status) }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <button mat-stroked-button (click)="clearFilters()">
+                <mat-icon>clear</mat-icon>
+                Limpiar
+            </button>
+        </div>
+    </mat-card>
+
+    <!-- Table -->
+    <mat-card>
+        @if (loading) {
+        <div class="loading-container">
+            <mat-spinner></mat-spinner>
+            <p>Cargando eventos...</p>
+        </div>
+        } @else {
+        <div class="table-container">
+            <table mat-table [dataSource]="events" class="events-table">
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Evento</th>
+                    <td mat-cell *matCellDef="let event">
+                        <strong>{{ event.name }}</strong>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                    <td mat-cell *matCellDef="let event">
+                        <mat-chip>{{ getTypeLabel(event.type) }}</mat-chip>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="date">
+                    <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                    <td mat-cell *matCellDef="let event">
+                        {{ formatDate(event.date) }} - {{ event.time }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Estado</th>
+                    <td mat-cell *matCellDef="let event">
+                        <mat-chip [color]="getStatusColor(event.status)">
+                            {{ getStatusLabel(event.status) }}
+                        </mat-chip>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                    <td mat-cell *matCellDef="let event">
+                        <button mat-icon-button (click)="viewEvent(event.id)" matTooltip="Ver">
+                            <mat-icon>visibility</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="editEvent(event.id)" matTooltip="Editar">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="deleteEvent(event)" matTooltip="Eliminar">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            @if (events.length === 0) {
+            <div class="no-data">
+                <mat-icon>event_busy</mat-icon>
+                <p>No se encontraron eventos</p>
+                <button mat-raised-button color="primary" (click)="createEvent()">
+                    Crear Primer Evento
+                </button>
+            </div>
+            }
+        </div>
+
+        <mat-paginator [length]="totalEvents" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]"
+            (page)="onPageChange($event)" showFirstLastButtons>
+        </mat-paginator>
+        }
+    </mat-card>
+</div>

@@ -1,0 +1,40 @@
+# Render deployment configuration
+# IMPORTANTE: Este archivo soluciona los problemas comunes de Prisma en Render
+
+services:
+  - type: web
+    name: monotickets-api
+    env: node
+    region: oregon
+    plan: free
+    # CRÍTICO: Build command con Prisma fixed version
+    buildCommand: |
+      npm install
+      npx prisma generate
+      npm run build
+    # CRÍTICO: Start command con migraciones automáticas
+    startCommand: npm run start:migrate:prod
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: monotickets-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        value: http://localhost:4200
+    # Health check
+    healthCheckPath: /
+
+databases:
+  - name: monotickets-db
+    databaseName: monotickets
+    user: monotickets
+    region: oregon
+    plan: free
+    # PostgreSQL 15
+    ipAllowList: []

@@ -1,0 +1,160 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  DIRECTOR_GLOBAL
+  PLANNER
+  STAFF
+}
+
+enum RsvpStatus {
+  PENDING
+  CONFIRMED
+  DECLINED
+}
+
+enum InvitationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+}
+
+enum ScanStatus {
+  VALID
+  DUPLICATE
+  INVALID
+  EXPIRED
+}
+
+enum DeliveryMethod {
+  SMS
+  WHATSAPP
+  EMAIL
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  fullName  String
+  role      UserRole
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  eventsAsPlanner Event[]  @relation("PlannerEvents")
+  scans           Scan[]   @relation("StaffScans")
+  
+  @@map("users")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  date        DateTime
+  location    String?
+  description String?
+  plannerId   String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  planner     User         @relation("PlannerEvents", fields: [plannerId], references: [id])
+  guests      Guest[]
+  invitations Invitation[]
+  scans       Scan[]
+  
+  @@map("events")
+}
+
+model Guest {
+  id         String     @id @default(uuid())
+  fullName   String
+  phone      String?
+  email      String?
+  guestCount Int        @default(1)
+  rsvpStatus RsvpStatus @default(PENDING)
+  eventId    String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  
+  // Relations
+  event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  invitations Invitation[]
+  
+  @@map("guests")
+}
+
+model Invitation {
+  id         String           @id @default(uuid())
+  qrToken    String           @unique
+  guestId    String
+  eventId    String
+  status     InvitationStatus @default(PENDING)
+  sentAt     DateTime?
+  deliveredAt DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  
+  // Relations
+  guest Guest @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  scans Scan[]
+  deliveryAttempts DeliveryAttempt[]
+  
+  @@map("invitations")
+}
+
+model Scan {
+  id         String     @id @default(uuid())
+  qrToken    String
+  eventId    String
+  scannedBy  String
+  status     ScanStatus
+  scannedAt  DateTime   @default(now())
+  
+  // Relations
+  event      Event      @relation(fields: [eventId], references: [id])
+  staff      User       @relation("StaffScans", fields: [scannedBy], references: [id])
+  invitation Invitation @relation(fields: [qrToken], references: [qrToken])
+  
+  @@map("scans")
+}
+
+model DeliveryAttempt {
+  id           String         @id @default(uuid())
+  invitationId String
+  method       DeliveryMethod
+  status       DeliveryStatus @default(PENDING)
+  provider     String?        // 'twilio', 'meta', or 'mock'
+  providerId   String?        // External provider message ID
+  errorMessage String?
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  
+  // Relations
+  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  
+  @@map("delivery_attempts")
+}

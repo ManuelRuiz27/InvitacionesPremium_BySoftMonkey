@@ -1,0 +1,340 @@
+// ===================================================================
+// 🎯 ICON UTILITIES - MONOTICKETS PLATINUM
+// ===================================================================
+// Utilidades para iconos: Phosphor, Lucide, Tabler, Material Symbols, Custom SVG
+// ===================================================================
+
+// ===================================================================
+// 📏 TAMAÑOS DE ICONOS
+// ===================================================================
+
+.icon-xs {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+}
+
+.icon-sm {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+}
+
+.icon-md {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+}
+
+.icon-lg {
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+}
+
+.icon-xl {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+}
+
+.icon-2xl {
+    width: 64px;
+    height: 64px;
+    font-size: 64px;
+}
+
+// ===================================================================
+// 🎨 COLORES DE ICONOS
+// ===================================================================
+
+.icon-navy {
+    color: var(--mono-navy);
+}
+
+.icon-cyan {
+    color: var(--mono-cyan);
+}
+
+.icon-white {
+    color: var(--mono-white);
+}
+
+.icon-gray {
+    color: var(--mono-gray-light);
+}
+
+.icon-success {
+    color: var(--color-success);
+}
+
+.icon-error {
+    color: var(--color-error);
+}
+
+.icon-warning {
+    color: var(--color-warning);
+}
+
+// ===================================================================
+// 🟦 PHOSPHOR ICONS (Guest Landing - Premium)
+// ===================================================================
+
+.ph {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+// Tamaños específicos para Phosphor
+.ph-sm {
+    font-size: 20px;
+}
+
+.ph-md {
+    font-size: 24px;
+}
+
+.ph-lg {
+    font-size: 32px;
+}
+
+// ===================================================================
+// 🟩 LUCIDE ICONS (Planner/Organizer)
+// ===================================================================
+
+lucide-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+}
+
+// ===================================================================
+// 🟧 TABLER ICONS (Planner + Director)
+// ===================================================================
+
+.ti {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+// Tamaños específicos para Tabler
+.ti-sm {
+    font-size: 20px;
+}
+
+.ti-md {
+    font-size: 24px;
+}
+
+.ti-lg {
+    font-size: 32px;
+}
+
+// ===================================================================
+// 🟥 MATERIAL SYMBOLS (Staff Scanner)
+// ===================================================================
+
+.material-symbols-sharp {
+    font-family: 'Material Symbols Sharp';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'liga';
+}
+
+// Estados del scanner (Sharp/Bold para máxima visibilidad)
+.scanner-icon {
+    font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 48;
+
+    &.valid {
+        color: var(--color-success);
+        font-size: 48px;
+    }
+
+    &.invalid {
+        color: var(--color-error);
+        font-size: 48px;
+    }
+
+    &.duplicate {
+        color: var(--color-warning);
+        font-size: 48px;
+    }
+}
+
+// ===================================================================
+// 🎨 CUSTOM SVG ICONS
+// ===================================================================
+
+.custom-icon {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+
+    // Colorear SVG con currentColor
+    svg {
+        width: 100%;
+        height: 100%;
+        fill: currentColor;
+        stroke: currentColor;
+    }
+}
+
+// Tamaños para custom SVG
+.custom-icon-sm {
+    width: 24px;
+    height: 24px;
+}
+
+.custom-icon-md {
+    width: 32px;
+    height: 32px;
+}
+
+.custom-icon-lg {
+    width: 48px;
+    height: 48px;
+}
+
+.custom-icon-xl {
+    width: 64px;
+    height: 64px;
+}
+
+// Colores para custom SVG
+.custom-icon-navy {
+    color: var(--mono-navy);
+}
+
+.custom-icon-cyan {
+    color: var(--mono-cyan);
+}
+
+.custom-icon-gold {
+    color: #D4AF37;
+}
+
+// ===================================================================
+// 🔄 ANIMACIONES DE ICONOS
+// ===================================================================
+
+.icon-spin {
+    animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.icon-pulse {
+    animation: icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.icon-bounce {
+    animation: icon-bounce 1s ease-in-out infinite;
+}
+
+@keyframes icon-bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+// ===================================================================
+// 🎯 ICON BUTTONS
+// ===================================================================
+
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+        background: var(--mono-gray-neutral);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    &.primary {
+        background: var(--mono-cyan);
+        color: var(--mono-white);
+
+        &:hover {
+            background: var(--mono-cyan-light);
+        }
+    }
+
+    &.secondary {
+        background: var(--mono-navy);
+        color: var(--mono-white);
+
+        &:hover {
+            background: var(--mono-navy-light);
+        }
+    }
+}
+
+// ===================================================================
+// 📱 RESPONSIVE ICON SIZES
+// ===================================================================
+
+@media (max-width: 768px) {
+    .icon-xl {
+        width: 40px;
+        height: 40px;
+        font-size: 40px;
+    }
+
+    .icon-2xl {
+        width: 56px;
+        height: 56px;
+        font-size: 56px;
+    }
+}
