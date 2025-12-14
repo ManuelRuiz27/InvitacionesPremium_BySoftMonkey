@@ -1,0 +1,217 @@
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Crear Evento</h1>
+            <p class="mt-2 text-sm text-gray-600">Completa los siguientes pasos para crear tu evento</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-700">Paso {{ currentStep }} de {{ totalSteps }}</span>
+                <span class="text-sm text-gray-500">{{ stepProgress }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary-800 h-2 rounded-full transition-all duration-300" [style.width.%]="stepProgress">
+                </div>
+            </div>
+
+            <!-- Step Labels -->
+            <div class="flex justify-between mt-4">
+                <div class="flex flex-col items-center" [class.text-primary-800]="currentStep >= 1">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1"
+                        [class.bg-primary-800]="currentStep >= 1" [class.bg-gray-300]="currentStep < 1"
+                        [class.text-white]="currentStep >= 1">
+                        1
+                    </div>
+                    <span class="text-xs">Información</span>
+                </div>
+                <div class="flex flex-col items-center" [class.text-primary-800]="currentStep >= 2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1"
+                        [class.bg-primary-800]="currentStep >= 2" [class.bg-gray-300]="currentStep < 2"
+                        [class.text-white]="currentStep >= 2">
+                        2
+                    </div>
+                    <span class="text-xs">Configuración</span>
+                </div>
+                <div class="flex flex-col items-center" [class.text-primary-800]="currentStep >= 3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1"
+                        [class.bg-primary-800]="currentStep >= 3" [class.bg-gray-300]="currentStep < 3"
+                        [class.text-white]="currentStep >= 3">
+                        3
+                    </div>
+                    <span class="text-xs">Preview</span>
+                </div>
+                <div class="flex flex-col items-center" [class.text-primary-800]="currentStep >= 4">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1"
+                        [class.bg-primary-800]="currentStep >= 4" [class.bg-gray-300]="currentStep < 4"
+                        [class.text-white]="currentStep >= 4">
+                        4
+                    </div>
+                    <span class="text-xs">Publicar</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step Content -->
+        <app-card>
+            <!-- Step 1: Basic Information -->
+            <div *ngIf="currentStep === 1">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Información Básica</h2>
+                <form [formGroup]="basicInfoForm" class="space-y-4">
+                    <app-input label="Nombre del Evento" [required]="true" formControlName="name"
+                        placeholder="Ej: Boda María & Juan"
+                        [error]="hasError(basicInfoForm, 'name') ? getFieldError(basicInfoForm, 'name') : ''"></app-input>
+
+                    <app-input label="Fecha y Hora" type="datetime-local" [required]="true" formControlName="date"
+                        [error]="hasError(basicInfoForm, 'date') ? getFieldError(basicInfoForm, 'date') : ''"></app-input>
+
+                    <app-input label="Ubicación" [required]="true" formControlName="location"
+                        placeholder="Ej: Jardín Los Pinos, CDMX"
+                        [error]="hasError(basicInfoForm, 'location') ? getFieldError(basicInfoForm, 'location') : ''"></app-input>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Descripción
+                        </label>
+                        <textarea formControlName="description" rows="4"
+                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                            placeholder="Describe tu evento..."></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 2: Configuration -->
+            <div *ngIf="currentStep === 2">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Configuración</h2>
+                <form [formGroup]="configForm" class="space-y-4">
+                    <app-input label="Máximo de Invitados" type="number" [required]="true" formControlName="maxGuests"
+                        helperText="Número máximo de invitados permitidos (1-1000)"
+                        [error]="hasError(configForm, 'maxGuests') ? getFieldError(configForm, 'maxGuests') : ''"></app-input>
+
+                    <app-input label="Máximo de Invitaciones" type="number" [required]="true"
+                        formControlName="maxInvitations" helperText="Número máximo de invitaciones a generar (1-1000)"
+                        [error]="hasError(configForm, 'maxInvitations') ? getFieldError(configForm, 'maxInvitations') : ''"></app-input>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Tipo de Plantilla
+                        </label>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
+                                [class.border-primary-800]="configForm.value.template === 'PDF'"
+                                [class.bg-primary-50]="configForm.value.template === 'PDF'">
+                                <input type="radio" formControlName="template" value="PDF" class="mr-3">
+                                <div>
+                                    <div class="font-medium">PDF</div>
+                                    <div class="text-sm text-gray-500">Invitación en formato PDF descargable</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
+                                [class.border-primary-800]="configForm.value.template === 'PREMIUM_LANDING'"
+                                [class.bg-primary-50]="configForm.value.template === 'PREMIUM_LANDING'">
+                                <input type="radio" formControlName="template" value="PREMIUM_LANDING" class="mr-3">
+                                <div>
+                                    <div class="font-medium">Premium Landing</div>
+                                    <div class="text-sm text-gray-500">Página web personalizada para tu evento</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 3: Preview -->
+            <div *ngIf="currentStep === 3">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Revisa tu Evento</h2>
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-gray-900 mb-2">Información Básica</h3>
+                        <dl class="space-y-2">
+                            <div class="flex justify-between">
+                                <dt class="text-sm text-gray-600">Nombre:</dt>
+                                <dd class="text-sm font-medium">{{ basicInfoForm.value.name }}</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-sm text-gray-600">Fecha:</dt>
+                                <dd class="text-sm font-medium">{{ basicInfoForm.value.date | date:'fullDate':'':'es-MX'
+                                    }}</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-sm text-gray-600">Ubicación:</dt>
+                                <dd class="text-sm font-medium">{{ basicInfoForm.value.location }}</dd>
+                            </div>
+                            <div *ngIf="basicInfoForm.value.description">
+                                <dt class="text-sm text-gray-600 mb-1">Descripción:</dt>
+                                <dd class="text-sm">{{ basicInfoForm.value.description }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-gray-900 mb-2">Configuración</h3>
+                        <dl class="space-y-2">
+                            <div class="flex justify-between">
+                                <dt class="text-sm text-gray-600">Máx. Invitados:</dt>
+                                <dd class="text-sm font-medium">{{ configForm.value.maxGuests }}</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-sm text-gray-600">Máx. Invitaciones:</dt>
+                                <dd class="text-sm font-medium">{{ configForm.value.maxInvitations }}</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-sm text-gray-600">Plantilla:</dt>
+                                <dd class="text-sm font-medium">{{ configForm.value.template === 'PDF' ? 'PDF' :
+                                    'Premium Landing' }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                        <p class="text-sm text-blue-800">
+                            <strong>Nota:</strong> Puedes editar cualquier campo volviendo a los pasos anteriores.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Publish -->
+            <div *ngIf="currentStep === 4">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">¡Listo para Publicar!</h2>
+                <div class="text-center py-8">
+                    <svg class="mx-auto h-16 w-16 text-green-500 mb-4" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Tu evento está listo</h3>
+                    <p class="text-gray-600 mb-6">
+                        Puedes guardarlo como borrador o publicarlo ahora para comenzar a enviar invitaciones.
+                    </p>
+                    <div class="space-y-3">
+                        <app-button [fullWidth]="true" [isLoading]="isSubmitting" (clicked)="publishEvent()">
+                            Publicar Evento
+                        </app-button>
+                        <app-button variant="outline" [fullWidth]="true" [disabled]="isSubmitting"
+                            (clicked)="saveDraft()">
+                            Guardar como Borrador
+                        </app-button>
+                    </div>
+                </div>
+            </div>
+        </app-card>
+
+        <!-- Navigation Buttons -->
+        <div class="mt-6 flex justify-between">
+            <app-button variant="outline" (clicked)="currentStep === 1 ? cancel() : previousStep()"
+                [disabled]="isSubmitting">
+                {{ currentStep === 1 ? 'Cancelar' : 'Anterior' }}
+            </app-button>
+
+            <app-button *ngIf="currentStep < 4" (clicked)="nextStep()" [disabled]="!canGoNext">
+                Siguiente
+            </app-button>
+        </div>
+    </div>
+</div>

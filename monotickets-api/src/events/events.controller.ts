@@ -13,6 +13,7 @@ import { ApiTags, ApiResponse, ApiOperation, ApiQuery, ApiBearerAuth } from '@ne
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserRole } from '@prisma/client';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -48,6 +49,44 @@ export class EventsController {
     @ApiResponse({ status: 400, description: 'Invalid input' })
     create(@Body() createEventDto: CreateEventDto) {
         return this.eventsService.create(createEventDto);
+    }
+
+    @Post(':id/publish')
+    @Roles(UserRole.PLANNER)
+    @ApiOperation({ summary: 'Publish an event (DRAFT -> PUBLISHED)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Event published successfully',
+    })
+    @ApiResponse({ status: 400, description: 'Cannot publish event (already published, missing data, or max limit reached)' })
+    @ApiResponse({ status: 404, description: 'Event not found' })
+    publish(@Param('id') id: string, @CurrentUser() user: any) {
+        return this.eventsService.publish(id, user.id);
+    }
+
+    @Post(':id/block')
+    @Roles(UserRole.DIRECTOR_GLOBAL)
+    @ApiOperation({ summary: 'Block an event (DIRECTOR_GLOBAL only)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Event blocked successfully',
+    })
+    @ApiResponse({ status: 404, description: 'Event not found' })
+    block(@Param('id') id: string, @Body('reason') reason: string) {
+        return this.eventsService.block(id, reason);
+    }
+
+    @Post(':id/close')
+    @Roles(UserRole.PLANNER, UserRole.DIRECTOR_GLOBAL)
+    @ApiOperation({ summary: 'Close an event manually' })
+    @ApiResponse({
+        status: 200,
+        description: 'Event closed successfully',
+    })
+    @ApiResponse({ status: 400, description: 'Event is already closed' })
+    @ApiResponse({ status: 404, description: 'Event not found' })
+    close(@Param('id') id: string, @CurrentUser() user: any) {
+        return this.eventsService.close(id, user.id);
     }
 
     @Get()

@@ -149,7 +149,7 @@ export class GuestService {
         locationText: 'Jardín Botánico de la Ciudad',
         locationLat: 19.4326,
         locationLng: -99.1332,
-        templateType: 'WEDDING',
+        templateType: 'PREMIUM',
         templateVariant: 'elegant-gold',
         customization: {
           primaryColor: '#D4AF37',

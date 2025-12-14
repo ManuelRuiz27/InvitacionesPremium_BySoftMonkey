@@ -7,13 +7,21 @@ import {
     Param,
     Delete,
     UseGuards,
+    UseInterceptors,
+    UploadedFile,
+    Res,
+    BadRequestException,
 } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserRole } from '@prisma/client';
 import { GuestsService } from './guests.service';
+import { CsvImportService } from './csv-import.service';
 import { CreateGuestDto } from './dto/create-guest.dto';
 import { UpdateGuestDto } from './dto/update-guest.dto';
 import { BulkUploadDto } from './dto/bulk-upload.dto';
@@ -23,7 +31,10 @@ import { BulkUploadDto } from './dto/bulk-upload.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller()
 export class GuestsController {
-    constructor(private readonly guestsService: GuestsService) { }
+    constructor(
+        private readonly guestsService: GuestsService,
+        private readonly csvImportService: CsvImportService,
+    ) { }
 
     @Post('events/:eventId/guests')
     @Roles(UserRole.PLANNER)
@@ -92,6 +103,60 @@ export class GuestsController {
     })
     getStats(@Param('eventId') eventId: string) {
         return this.guestsService.getGuestStats(eventId);
+    }
+
+    @Post('events/:eventId/guests/import')
+    @Roles(UserRole.PLANNER)
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiConsumes('multipart/form-data')
+    @ApiOperation({ summary: 'Import guests from CSV file' })
+    @ApiResponse({
+        status: 201,
+        description: 'CSV import completed',
+        schema: {
+            example: {
+                created: 45,
+                skipped: 3,
+                invalid: 2,
+                errors: [
+                    { row: 5, data: {}, reason: 'Missing fullName' },
+                ],
+                summary: {
+                    totalRows: 50,
+                    successRate: 90.0,
+                },
+            },
+        },
+    })
+    @ApiResponse({ status: 400, description: 'Invalid CSV file or data' })
+    async importCsv(
+        @Param('eventId') eventId: string,
+        @UploadedFile() file: Express.Multer.File,
+        @CurrentUser() user: any,
+    ) {
+        if (!file) {
+            throw new BadRequestException('No file uploaded');
+        }
+
+        return this.csvImportService.importGuests(
+            eventId,
+            file.buffer,
+            user.id,
+        );
+    }
+
+    @Get('events/:eventId/guests/import/template')
+    @Roles(UserRole.PLANNER)
+    @ApiOperation({ summary: 'Download CSV template' })
+    @ApiResponse({
+        status: 200,
+        description: 'CSV template file',
+    })
+    downloadTemplate(@Res() res: Response) {
+        const template = this.csvImportService.generateTemplate();
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="guests_template.csv"');
+        res.send(template);
     }
 
     @Get('guests/:id')

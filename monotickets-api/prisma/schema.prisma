@@ -49,6 +49,24 @@ enum DeliveryStatus {
   FAILED
 }
 
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  BLOCKED
+}
+
+enum TemplateType {
+  PDF
+  PREMIUM_LANDING
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -67,35 +85,43 @@ model User {
 }
 
 model Event {
-  id          String   @id @default(uuid())
-  name        String
-  date        DateTime
-  location    String?
-  description String?
-  plannerId   String
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String      @id @default(uuid())
+  name           String
+  date           DateTime
+  location       String?
+  description    String?
+  plannerId      String
+  status         EventStatus @default(DRAFT)
+  publishedAt    DateTime?
+  closedAt       DateTime?
+  blockedReason  String?
+  maxGuests      Int         @default(1000)
+  maxInvitations Int         @default(1000)
+  active         Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
   
   // Relations
   planner     User         @relation("PlannerEvents", fields: [plannerId], references: [id])
   guests      Guest[]
   invitations Invitation[]
   scans       Scan[]
+  alerts      Alert[]
   
   @@map("events")
 }
 
 model Guest {
-  id         String     @id @default(uuid())
-  fullName   String
-  phone      String?
-  email      String?
-  guestCount Int        @default(1)
-  rsvpStatus RsvpStatus @default(PENDING)
-  eventId    String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id          String     @id @default(uuid())
+  fullName    String
+  phone       String?
+  email       String?
+  guestCount  Int        @default(1)
+  rsvpStatus  RsvpStatus @default(PENDING)
+  respondedAt DateTime?
+  eventId     String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   
   // Relations
   event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
@@ -105,20 +131,22 @@ model Guest {
 }
 
 model Invitation {
-  id         String           @id @default(uuid())
-  qrToken    String           @unique
-  guestId    String
-  eventId    String
-  status     InvitationStatus @default(PENDING)
-  sentAt     DateTime?
-  deliveredAt DateTime?
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  id             String           @id @default(uuid())
+  qrToken        String           @unique
+  guestId        String
+  eventId        String
+  status         InvitationStatus @default(PENDING)
+  sentAt         DateTime?
+  deliveredAt    DateTime?
+  receivedAt     DateTime?
+  remainingCount Int              @default(1)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
   
   // Relations
-  guest Guest @relation(fields: [guestId], references: [id], onDelete: Cascade)
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  scans Scan[]
+  guest            Guest             @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  event            Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  scans            Scan[]
   deliveryAttempts DeliveryAttempt[]
   
   @@map("invitations")
@@ -158,3 +186,43 @@ model DeliveryAttempt {
   
   @@map("delivery_attempts")
 }
+
+model Template {
+  id        String       @id @default(uuid())
+  name      String
+  type      TemplateType
+  version   String       @default("1.0")
+  config    String?      // JSON configuration
+  active    Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  
+  @@map("templates")
+}
+
+model Alert {
+  id         String        @id @default(uuid())
+  eventId    String
+  severity   AlertSeverity
+  message    String
+  resolved   Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  resolvedAt DateTime?
+  
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@map("alerts")
+}
+
+model ComplianceLog {
+  id          String   @id @default(uuid())
+  action      String   // 'ANONYMIZE', 'DELETE', etc.
+  entityType  String   // 'EVENT', 'GUEST', 'INVITATION'
+  entityId    String
+  performedBy String?  // User ID if manual
+  createdAt   DateTime @default(now())
+  
+  @@map("compliance_logs")
+}
+

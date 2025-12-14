@@ -1,17 +1,41 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScanValidationDto } from './dto/scan-validation.dto';
 import { SyncScansDto } from './dto/sync-scans.dto';
 import { ScanStatus } from '@prisma/client';
+import { QrService } from '../common/services/qr.service';
 
 @Injectable()
 export class ScannerService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private qrService: QrService,
+    ) { }
 
-    async validateQR(dto: ScanValidationDto) {
-        // Find invitation by QR token
+    /**
+     * Validate and scan QR code with partial entry support
+     * @param dto - Scan validation data
+     * @param entryCount - Number of people entering (for partial entry)
+     */
+    async validateQR(dto: ScanValidationDto, entryCount?: number) {
+        // First, validate JWT token
+        const qrValidation = await this.qrService.validateQrToken(dto.qrToken);
+
+        if (!qrValidation.valid) {
+            return {
+                valid: false,
+                status: qrValidation.reason?.includes('expired') || qrValidation.reason?.includes('event day')
+                    ? ScanStatus.EXPIRED
+                    : ScanStatus.INVALID,
+                message: qrValidation.reason || 'QR inválido',
+            };
+        }
+
+        const payload = qrValidation.payload;
+
+        // Find invitation by ID from JWT
         const invitation = await this.prisma.invitation.findUnique({
-            where: { qrToken: dto.qrToken },
+            where: { id: payload.invitationId },
             include: {
                 guest: true,
                 event: true,
@@ -22,7 +46,7 @@ export class ScannerService {
             return {
                 valid: false,
                 status: ScanStatus.INVALID,
-                message: 'QR inválido o no encontrado',
+                message: 'Invitación no encontrada',
             };
         }
 
@@ -35,15 +59,8 @@ export class ScannerService {
             };
         }
 
-        // Check if already scanned
-        const existingScan = await this.prisma.scan.findFirst({
-            where: {
-                qrToken: dto.qrToken,
-                eventId: dto.eventId,
-            },
-        });
-
-        if (existingScan) {
+        // Check remaining count
+        if (invitation.remainingCount <= 0) {
             return {
                 valid: false,
                 status: ScanStatus.DUPLICATE,
@@ -51,21 +68,48 @@ export class ScannerService {
                     id: invitation.guest.id,
                     fullName: invitation.guest.fullName,
                     guestCount: invitation.guest.guestCount,
-                    inviteType: 'STANDARD',
+                    remainingCount: invitation.remainingCount,
                 },
-                message: `Ya escaneado anteriormente a las ${existingScan.scannedAt.toLocaleTimeString('es-MX')}`,
+                message: 'Todos los invitados ya ingresaron',
             };
         }
 
-        // Create scan record
-        const scan = await this.prisma.scan.create({
-            data: {
-                qrToken: dto.qrToken,
-                eventId: dto.eventId,
-                scannedBy: dto.scannedBy,
-                status: ScanStatus.VALID,
-                scannedAt: new Date(dto.scannedAt),
-            },
+        // Determine entry count (default to remaining count if not specified)
+        const actualEntryCount = entryCount || invitation.remainingCount;
+
+        // Validate entry count
+        if (actualEntryCount > invitation.remainingCount) {
+            throw new BadRequestException(
+                `Cannot enter ${actualEntryCount} people. Only ${invitation.remainingCount} remaining.`,
+            );
+        }
+
+        if (actualEntryCount < 1) {
+            throw new BadRequestException('Entry count must be at least 1');
+        }
+
+        // Transactional update to prevent race conditions
+        const result = await this.prisma.$transaction(async (tx) => {
+            // Update remaining count
+            const updatedInvitation = await tx.invitation.update({
+                where: { id: invitation.id },
+                data: {
+                    remainingCount: invitation.remainingCount - actualEntryCount,
+                },
+            });
+
+            // Create scan record
+            const scan = await tx.scan.create({
+                data: {
+                    qrToken: dto.qrToken,
+                    eventId: dto.eventId,
+                    scannedBy: dto.scannedBy,
+                    status: ScanStatus.VALID,
+                    scannedAt: new Date(dto.scannedAt),
+                },
+            });
+
+            return { updatedInvitation, scan };
         });
 
         return {
@@ -75,14 +119,17 @@ export class ScannerService {
                 id: invitation.guest.id,
                 fullName: invitation.guest.fullName,
                 guestCount: invitation.guest.guestCount,
-                inviteType: 'STANDARD',
+                remainingCount: result.updatedInvitation.remainingCount,
+                enteredCount: actualEntryCount,
             },
             scan: {
-                id: scan.id,
-                scannedAt: scan.scannedAt,
-                scannedBy: scan.scannedBy,
+                id: result.scan.id,
+                scannedAt: result.scan.scannedAt,
+                scannedBy: result.scan.scannedBy,
             },
-            message: 'Acceso permitido',
+            message: actualEntryCount === invitation.guest.guestCount
+                ? 'Acceso permitido - Todos los invitados'
+                : `Acceso permitido - ${actualEntryCount} de ${invitation.guest.guestCount} invitados`,
         };
     }
 

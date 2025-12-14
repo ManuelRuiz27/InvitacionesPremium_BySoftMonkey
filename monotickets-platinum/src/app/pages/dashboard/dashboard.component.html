@@ -1,0 +1,142 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white" style="box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p class="text-sm text-gray-600">Gestiona tus eventos</p>
+        </div>
+        <div class="flex gap-2 items-center">
+          <button mat-icon-button (click)="refresh()" [disabled]="isLoading" matTooltip="Actualizar">
+            <mat-icon>refresh</mat-icon>
+          </button>
+          <button mat-raised-button color="primary" [routerLink]="['/events/create']" [disabled]="maxEventsReached">
+            <mat-icon class="mr-2">add</mat-icon>
+            Nuevo Evento
+          </button>
+        </div>
+      </div>
+
+      <!-- Warning if max events reached -->
+      <div *ngIf="maxEventsReached" class="mt-4 p-4 bg-yellow-100 border border-yellow-200 rounded-lg">
+        <p class="text-sm text-gray-900">
+          <strong>Límite alcanzado:</strong> Tienes 5 eventos activos (máximo permitido).
+          Cierra un evento para crear uno nuevo.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Filters -->
+    <div class="mb-6 flex gap-2">
+      <button mat-stroked-button [color]="activeFilter === 'all' ? 'primary' : undefined" (click)="setFilter('all')">
+        Todos ({{ events.length }})
+      </button>
+      <button mat-stroked-button [color]="activeFilter === 'active' ? 'primary' : undefined"
+        (click)="setFilter('active')">
+        Activos ({{ activeEventsCount }})
+      </button>
+      <button mat-stroked-button [color]="activeFilter === 'closed' ? 'primary' : undefined"
+        (click)="setFilter('closed')">
+        Cerrados ({{ closedEventsCount }})
+      </button>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="text-center py-12">
+      <mat-icon class="text-red-500" style="font-size: 48px; width: 48px; height: 48px;">error</mat-icon>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">{{ error }}</h3>
+      <div class="mt-6">
+        <button mat-raised-button color="primary" (click)="refresh()">
+          Reintentar
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center py-12">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !error && filteredEvents.length === 0" class="text-center py-12">
+      <mat-icon style="font-size: 48px; width: 48px; height: 48px;" class="text-gray-400">event</mat-icon>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No hay eventos</h3>
+      <p class="mt-1 text-sm text-gray-600">
+        {{ activeFilter === 'all' ? 'Comienza creando tu primer evento.' : 'No hay eventos en esta categoría.' }}
+      </p>
+      <div class="mt-6" *ngIf="activeFilter === 'all'">
+        <button mat-raised-button color="primary" [routerLink]="['/events/create']">
+          <mat-icon class="mr-2">add</mat-icon>
+          Crear Evento
+        </button>
+      </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div *ngIf="!isLoading && !error && filteredEvents.length > 0"
+      style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+      <mat-card *ngFor="let event of filteredEvents" class="event-card">
+        <mat-card-header>
+          <mat-card-title>{{ event.name }}</mat-card-title>
+          <mat-card-subtitle>{{ event.date | date:'fullDate':'':'es-MX' }}</mat-card-subtitle>
+          <mat-chip [class]="getStatusColor(event.status)" style="margin-left: auto;">
+            {{ getStatusLabel(event.status) }}
+          </mat-chip>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Location -->
+          <div class="flex items-center text-sm text-gray-600 mb-4">
+            <mat-icon class="mr-2" style="font-size: 16px; width: 16px; height: 16px;">place</mat-icon>
+            {{ event.location }}
+          </div>
+
+          <!-- Stats Grid -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <p class="text-xs text-gray-600">Invitados</p>
+              <p class="text-2xl font-bold text-gray-900">{{ event.stats.totalGuests }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-600">Confirmados</p>
+              <p class="text-2xl font-bold" style="color: #10B981;">
+                {{ event.stats.confirmedGuests }}
+                <span class="text-sm text-gray-600" *ngIf="event.stats.totalGuests > 0">
+                  ({{ (event.stats.confirmedGuests / event.stats.totalGuests * 100) | number:'1.0-0' }}%)
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Delivery Rate Progress -->
+          <div class="mb-4">
+            <div class="flex justify-between text-xs text-gray-600 mb-1">
+              <span>Tasa de entrega</span>
+              <span>{{ event.stats.deliveryRate }}%</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="event.stats.deliveryRate" color="primary"></mat-progress-bar>
+          </div>
+
+          <!-- RSVP Rate Progress -->
+          <div>
+            <div class="flex justify-between text-xs text-gray-600 mb-1">
+              <span>Tasa de RSVP</span>
+              <span>{{ event.stats.rsvpRate }}%</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="event.stats.rsvpRate" color="accent"></mat-progress-bar>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" [routerLink]="['/events', event.id]">
+            Ver Detalles
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </main>
+</div>

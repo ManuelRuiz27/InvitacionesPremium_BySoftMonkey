@@ -1,13 +1,15 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { EventStatus } from '@prisma/client';
 
 @Injectable()
 export class EventsService {
     constructor(private prisma: PrismaService) { }
 
     async create(createEventDto: CreateEventDto) {
+        // Event is created in DRAFT status by default (schema default)
         const event = await this.prisma.event.create({
             data: {
                 name: createEventDto.name,
@@ -28,6 +30,103 @@ export class EventsService {
         });
 
         return event;
+    }
+
+    /**
+     * Publish an event (DRAFT -> PUBLISHED)
+     * Validates: max 5 simultaneous events, event has required data
+     */
+    async publish(id: string, userId: string) {
+        const event = await this.findOne(id, userId);
+
+        // Check current status
+        if (event.status !== EventStatus.DRAFT) {
+            throw new BadRequestException(`Event must be in DRAFT status to publish. Current status: ${event.status}`);
+        }
+
+        // Validate event has required data
+        if (!event.name || !event.date) {
+            throw new BadRequestException('Event must have name and date to be published');
+        }
+
+        // Check max 5 simultaneous events per planner
+        const publishedEventsCount = await this.prisma.event.count({
+            where: {
+                plannerId: userId,
+                status: EventStatus.PUBLISHED,
+                active: true,
+            },
+        });
+
+        if (publishedEventsCount >= 5) {
+            throw new BadRequestException('Maximum of 5 simultaneous published events reached. Please close an existing event first.');
+        }
+
+        // Publish the event
+        const publishedEvent = await this.prisma.event.update({
+            where: { id },
+            data: {
+                status: EventStatus.PUBLISHED,
+                publishedAt: new Date(),
+            },
+            include: {
+                planner: {
+                    select: {
+                        id: true,
+                        email: true,
+                        fullName: true,
+                    },
+                },
+            },
+        });
+
+        return publishedEvent;
+    }
+
+    /**
+     * Block an event (DIRECTOR_GLOBAL only)
+     */
+    async block(id: string, reason: string) {
+        const event = await this.prisma.event.findUnique({ where: { id } });
+
+        if (!event) {
+            throw new NotFoundException(`Event with ID ${id} not found`);
+        }
+
+        const blockedEvent = await this.prisma.event.update({
+            where: { id },
+            data: {
+                status: EventStatus.BLOCKED,
+                blockedReason: reason,
+            },
+        });
+
+        return blockedEvent;
+    }
+
+    /**
+     * Close an event (manual or auto-close)
+     */
+    async close(id: string, userId?: string) {
+        const event = userId ? await this.findOne(id, userId) : await this.prisma.event.findUnique({ where: { id } });
+
+        if (!event) {
+            throw new NotFoundException(`Event with ID ${id} not found`);
+        }
+
+        if (event.status === EventStatus.CLOSED) {
+            throw new BadRequestException('Event is already closed');
+        }
+
+        const closedEvent = await this.prisma.event.update({
+            where: { id },
+            data: {
+                status: EventStatus.CLOSED,
+                closedAt: new Date(),
+            },
+        });
+
+        return closedEvent;
     }
 
     async findAll(plannerId?: string) {

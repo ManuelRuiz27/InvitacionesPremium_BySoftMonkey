@@ -1,0 +1,45 @@
+.upload-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 0.5rem;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.upload-zone:hover {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.upload-zone.dragging {
+    border-color: #3b82f6;
+    background-color: #dbeafe;
+    transform: scale(1.02);
+}
+
+.stat-card {
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.stat-card mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0.5rem;
+}
+
+table {
+    width: 100%;
+}
+
+th {
+    font-weight: 600;
+    color: #374151;
+}
+
+td {
+    color: #6b7280;
+}
