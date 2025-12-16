@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   Injectable,
   NotFoundException,
@@ -9,6 +10,13 @@ import { RsvpConfigService } from './rsvp-config.service';
 import { UpdateRsvpConfigDto } from './dto/update-rsvp-config.dto';
 import { UserRole } from '@prisma/client';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.interface';
+=======
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { RsvpConfigDto } from './dto/rsvp-config.dto';
+import { RsvpStatus } from '@prisma/client';
+import { addDaysInCDMX, nowInCDMX } from '../common/utils/timezone.util';
+>>>>>>> ff183bdbed4957932f8d0fec1d925d02cf1e8910
 
 @Injectable()
 export class RsvpService {
@@ -82,6 +90,7 @@ export class RsvpService {
       }
     }
 
+<<<<<<< HEAD
     return this.prisma.guest.update({
       where: { id: guestId },
       data: {
@@ -186,4 +195,102 @@ export class RsvpService {
 
     return event;
   }
+=======
+    /**
+     * Update guest RSVP status
+     * Enforces 20-day revocation window from receivedAt
+     * Planner can override manually
+     */
+    async updateRsvp(
+        guestId: string,
+        status: RsvpStatus,
+        isPlannerOverride: boolean = false,
+    ) {
+        const guest = await this.prisma.guest.findUnique({
+            where: { id: guestId },
+            include: {
+                invitations: {
+                    take: 1,
+                    orderBy: { createdAt: 'desc' },
+                },
+            },
+        });
+
+        if (!guest) {
+            throw new NotFoundException(`Guest with ID ${guestId} not found`);
+        }
+
+        // Check if guest can revoke RSVP (20-day window)
+        if (!isPlannerOverride && guest.rsvpStatus !== RsvpStatus.PENDING) {
+            const canRevoke = this.canRevokeRsvp(guest.invitations[0]?.receivedAt);
+            if (!canRevoke) {
+                throw new BadRequestException(
+                    'Cannot change RSVP after 20 days from invitation receipt',
+                );
+            }
+        }
+
+        // Update RSVP status
+        const updatedGuest = await this.prisma.guest.update({
+            where: { id: guestId },
+            data: {
+                rsvpStatus: status,
+                respondedAt: guest.respondedAt || nowInCDMX(),
+            },
+        });
+
+        return updatedGuest;
+    }
+
+    /**
+     * Check if guest can revoke RSVP based on 20-day window
+     * @param receivedAt - When the invitation was first received
+     * @returns true if within 20 days, false otherwise
+     */
+    private canRevokeRsvp(receivedAt: Date | null | undefined): boolean {
+        if (!receivedAt) {
+            // If no receivedAt, allow change (invitation not yet delivered)
+            return true;
+        }
+
+        const now = nowInCDMX();
+        const deadline = addDaysInCDMX(receivedAt, 20);
+
+        return now <= deadline;
+    }
+
+    /**
+     * Get RSVP revocation status for a guest
+     */
+    async getRsvpRevocationStatus(guestId: string) {
+        const guest = await this.prisma.guest.findUnique({
+            where: { id: guestId },
+            include: {
+                invitations: {
+                    take: 1,
+                    orderBy: { createdAt: 'desc' },
+                },
+            },
+        });
+
+        if (!guest) {
+            throw new NotFoundException(`Guest with ID ${guestId} not found`);
+        }
+
+        const receivedAt = guest.invitations[0]?.receivedAt;
+        const canRevoke = this.canRevokeRsvp(receivedAt);
+        const daysRemaining = receivedAt
+            ? Math.max(0, 20 - Math.floor((nowInCDMX().getTime() - receivedAt.getTime()) / (1000 * 60 * 60 * 24)))
+            : 20;
+
+        return {
+            guestId,
+            currentStatus: guest.rsvpStatus,
+            canRevoke,
+            receivedAt,
+            daysRemaining,
+            respondedAt: guest.respondedAt,
+        };
+    }
+>>>>>>> ff183bdbed4957932f8d0fec1d925d02cf1e8910
 }

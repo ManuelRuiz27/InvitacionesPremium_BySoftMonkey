@@ -21,7 +21,7 @@ interface JWTPayload {
 
 @Injectable()
 export class ScannerService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async validateQR(dto: ScanValidationDto) {
     const jwtSecret =

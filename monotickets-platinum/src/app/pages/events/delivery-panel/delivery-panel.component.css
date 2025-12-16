@@ -1,0 +1,18 @@
+table {
+    width: 100%;
+}
+
+th {
+    font-weight: 600;
+    color: #374151;
+}
+
+td {
+    color: #6b7280;
+}
+
+mat-chip {
+    font-size: 0.75rem;
+    height: auto;
+    min-height: 24px;
+}

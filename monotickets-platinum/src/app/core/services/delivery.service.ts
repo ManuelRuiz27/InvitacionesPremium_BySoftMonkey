@@ -50,6 +50,20 @@ export interface RetryResponse {
     attempts: number;
 }
 
+// Add missing interfaces for delivery-panel component
+export interface DeliverySummary {
+    total: number;
+    sent: number;
+    delivered: number;
+    failed: number;
+    pending: number;
+    invalidNumbers: number;
+}
+
+export interface BulkSendRequest {
+    invitationIds: string[];
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -71,5 +85,18 @@ export class DeliveryService {
             `${this.apiUrl}/retry/${invitationId}`,
             {}
         );
+    }
+
+    // Add methods for delivery-panel component
+    getDeliverySummary(eventId: string): Observable<DeliverySummary> {
+        return this.http.get<DeliverySummary>(`${environment.apiUrl}/events/${eventId}/delivery/summary`);
+    }
+
+    sendBulk(eventId: string, request: BulkSendRequest): Observable<any> {
+        return this.http.post(`${environment.apiUrl}/events/${eventId}/invitations/send-bulk`, request);
+    }
+
+    sendInvitation(invitationId: string): Observable<any> {
+        return this.http.post(`${environment.apiUrl}/invitations/${invitationId}/send`, {});
     }
 }

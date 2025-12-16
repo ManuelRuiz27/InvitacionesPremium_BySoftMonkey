@@ -20,6 +20,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserRole } from '@prisma/client';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -58,6 +59,7 @@ export class EventsController {
     return this.eventsService.create(createEventDto);
   }
 
+<<<<<<< HEAD
   @Get()
   @Roles(UserRole.PLANNER, UserRole.DIRECTOR_GLOBAL)
   @ApiOperation({ summary: 'Get all events' })
@@ -73,6 +75,61 @@ export class EventsController {
   findAll(@Query('plannerId') plannerId?: string) {
     return this.eventsService.findAll(plannerId);
   }
+=======
+    @Post(':id/publish')
+    @Roles(UserRole.PLANNER)
+    @ApiOperation({ summary: 'Publish an event (DRAFT -> PUBLISHED)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Event published successfully',
+    })
+    @ApiResponse({ status: 400, description: 'Cannot publish event (already published, missing data, or max limit reached)' })
+    @ApiResponse({ status: 404, description: 'Event not found' })
+    publish(@Param('id') id: string, @CurrentUser() user: any) {
+        return this.eventsService.publish(id, user.id);
+    }
+
+    @Post(':id/block')
+    @Roles(UserRole.DIRECTOR_GLOBAL)
+    @ApiOperation({ summary: 'Block an event (DIRECTOR_GLOBAL only)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Event blocked successfully',
+    })
+    @ApiResponse({ status: 404, description: 'Event not found' })
+    block(@Param('id') id: string, @Body('reason') reason: string) {
+        return this.eventsService.block(id, reason);
+    }
+
+    @Post(':id/close')
+    @Roles(UserRole.PLANNER, UserRole.DIRECTOR_GLOBAL)
+    @ApiOperation({ summary: 'Close an event manually' })
+    @ApiResponse({
+        status: 200,
+        description: 'Event closed successfully',
+    })
+    @ApiResponse({ status: 400, description: 'Event is already closed' })
+    @ApiResponse({ status: 404, description: 'Event not found' })
+    close(@Param('id') id: string, @CurrentUser() user: any) {
+        return this.eventsService.close(id, user.id);
+    }
+
+    @Get()
+    @Roles(UserRole.PLANNER, UserRole.DIRECTOR_GLOBAL)
+    @ApiOperation({ summary: 'Get all events' })
+    @ApiQuery({
+        name: 'plannerId',
+        required: false,
+        description: 'Filter by planner ID',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Events retrieved successfully',
+    })
+    findAll(@Query('plannerId') plannerId?: string) {
+        return this.eventsService.findAll(plannerId);
+    }
+>>>>>>> ff183bdbed4957932f8d0fec1d925d02cf1e8910
 
   @Get(':id')
   @Roles(UserRole.PLANNER, UserRole.DIRECTOR_GLOBAL)

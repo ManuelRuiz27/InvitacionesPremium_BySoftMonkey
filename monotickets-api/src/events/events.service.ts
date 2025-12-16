@@ -18,7 +18,7 @@ import { AuthenticatedUser } from '../auth/types/authenticated-user.interface';
 
 @Injectable()
 export class EventsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private readonly plannerSelect = {
     id: true,

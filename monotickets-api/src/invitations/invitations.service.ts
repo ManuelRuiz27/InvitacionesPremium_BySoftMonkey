@@ -17,6 +17,7 @@ export class InvitationsService {
     private deliveryService: DeliveryService,
   ) {}
 
+<<<<<<< HEAD
   async generate(eventId: string, generateDto: GenerateInvitationsDto) {
     // Verify event exists
     const event = await this.prisma.event.findUnique({
@@ -25,6 +26,84 @@ export class InvitationsService {
 
     if (!event) {
       throw new NotFoundException(`Event with ID ${eventId} not found`);
+=======
+    async generate(eventId: string, generateDto: GenerateInvitationsDto) {
+        // Verify event exists and get invitation count
+        const event = await this.prisma.event.findUnique({
+            where: { id: eventId },
+            include: {
+                _count: {
+                    select: { invitations: true },
+                },
+            },
+        });
+
+        if (!event) {
+            throw new NotFoundException(`Event with ID ${eventId} not found`);
+        }
+
+        // Verify all guests exist and belong to this event
+        const guests = await this.prisma.guest.findMany({
+            where: {
+                id: { in: generateDto.guestIds },
+                eventId,
+            },
+        });
+
+        if (guests.length !== generateDto.guestIds.length) {
+            throw new BadRequestException('Some guests not found or do not belong to this event');
+        }
+
+        // Check for existing invitations
+        const existingInvitations = await this.prisma.invitation.findMany({
+            where: {
+                guestId: { in: generateDto.guestIds },
+                eventId,
+            },
+        });
+
+        if (existingInvitations.length > 0) {
+            throw new BadRequestException(
+                `Some guests already have invitations: ${existingInvitations.map(i => i.guestId).join(', ')}`,
+            );
+        }
+
+        // Check max 1000 invitations per event
+        const currentInvitationCount = event._count.invitations;
+        const potentialTotal = currentInvitationCount + guests.length;
+
+        if (potentialTotal > event.maxInvitations) {
+            throw new BadRequestException(
+                `Cannot generate ${guests.length} invitations. Would exceed maximum of ${event.maxInvitations} invitations per event. Current: ${currentInvitationCount}`,
+            );
+        }
+
+        // Generate invitations with QR tokens and initialize remainingCount
+        const invitations = await this.prisma.$transaction(
+            guests.map((guest) => {
+                const qrToken = this.generateQRToken(eventId, guest.id);
+
+                return this.prisma.invitation.create({
+                    data: {
+                        qrToken,
+                        guestId: guest.id,
+                        eventId,
+                        status: 'PENDING',
+                        remainingCount: guest.guestCount, // Initialize with guestCount
+                    },
+                    include: {
+                        guest: true,
+                    },
+                });
+            }),
+        );
+
+        return {
+            message: `Successfully generated ${invitations.length} invitations`,
+            count: invitations.length,
+            invitations,
+        };
+>>>>>>> ff183bdbed4957932f8d0fec1d925d02cf1e8910
     }
 
     // Verify all guests exist and belong to this event
