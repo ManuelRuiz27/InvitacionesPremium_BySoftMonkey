@@ -1,0 +1,135 @@
+<div class="metrics-container">
+    <div class="page-header">
+        <button mat-icon-button class="back-btn" (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-copy">
+            <p class="eyebrow">Métricas del evento</p>
+            <h1>{{ event?.name || 'Evento' }}</h1>
+            <p class="subtitle" *ngIf="event">{{ formatEventDate() }}</p>
+        </div>
+        <div class="header-actions">
+            <button mat-stroked-button color="primary" (click)="goToGuests()">
+                <mat-icon>people</mat-icon>
+                Ver invitados
+            </button>
+            <button mat-stroked-button color="primary" (click)="goToScans()">
+                <mat-icon>qr_code_scanner</mat-icon>
+                Panel de escaneos
+            </button>
+            <button mat-icon-button matTooltip="Actualizar métricas" (click)="refresh()">
+                <mat-icon>refresh</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <div class="loading-state" *ngIf="loading">
+        <mat-spinner></mat-spinner>
+        <p>Calculando KPIs con datos del backend...</p>
+    </div>
+
+    <div class="error-state" *ngIf="!loading && error">
+        <mat-icon color="warn">error</mat-icon>
+        <p>{{ error }}</p>
+        <button mat-raised-button color="primary" (click)="refresh()">Intentar de nuevo</button>
+    </div>
+
+    <ng-container *ngIf="!loading && !error && metrics">
+        <section class="kpi-grid">
+            <mat-card class="kpi-card" *ngFor="let kpi of rateCards">
+                <div class="kpi-header">
+                    <mat-icon>{{ kpi.icon }}</mat-icon>
+                    <div>
+                        <p class="kpi-label">{{ kpi.label }}</p>
+                        <h3 [ngClass]="getRateClass(getRateValue(kpi.key))">
+                            {{ getRateValue(kpi.key) }}%
+                        </h3>
+                    </div>
+                </div>
+                <p class="kpi-description">{{ kpi.description }}</p>
+                <mat-progress-bar mode="determinate" [value]="getRateValue(kpi.key)"></mat-progress-bar>
+            </mat-card>
+
+            <mat-card class="kpi-card avg-card">
+                <div class="kpi-header">
+                    <mat-icon>schedule</mat-icon>
+                    <div>
+                        <p class="kpi-label">Tiempo promedio para RSVP</p>
+                        <h3>{{ metrics.avgTimeToRsvp | number:'1.0-1' }} días</h3>
+                    </div>
+                </div>
+                <p class="kpi-description">Días entre la entrega y la respuesta del invitado.</p>
+            </mat-card>
+        </section>
+
+        <section class="content-grid">
+            <mat-card class="attendance-card">
+                <mat-card-header>
+                    <mat-card-title>Accesos registrados</mat-card-title>
+                    <mat-card-subtitle>Validaciones del Scanner</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="attendance-figures">
+                        <div>
+                            <p class="figure-label">Han ingresado</p>
+                            <h2>{{ metrics.totalEntered }}</h2>
+                        </div>
+                        <div>
+                            <p class="figure-label">Esperados</p>
+                            <h2>{{ metrics.expectedTotal }}</h2>
+                        </div>
+                    </div>
+                    <mat-progress-bar mode="determinate" [value]="attendanceProgress"></mat-progress-bar>
+                    <div class="attendance-meta">
+                        <div>
+                            <span>Confirmados</span>
+                            <strong>{{ metrics.expectedTotal }}</strong>
+                        </div>
+                        <div>
+                            <span>Restantes</span>
+                            <strong>{{ remainingGuests }}</strong>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="alerts-card">
+                <mat-card-header>
+                    <mat-card-title>Alertas y acciones sugeridas</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div *ngIf="hasAlerts; else noAlerts">
+                        <mat-chip-set>
+                            <mat-chip class="alert-chip" *ngFor="let alert of alerts">
+                                <mat-icon>warning</mat-icon>
+                                {{ alert }}
+                            </mat-chip>
+                        </mat-chip-set>
+                    </div>
+                    <ng-template #noAlerts>
+                        <div class="no-alerts">
+                            <mat-icon>check_circle</mat-icon>
+                            <p>Sin alertas por ahora. Mantén el monitoreo activo durante el evento.</p>
+                        </div>
+                    </ng-template>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="funnel-card">
+                <mat-card-header>
+                    <mat-card-title>Embudo del evento</mat-card-title>
+                    <mat-card-subtitle>Estado actual de la lista</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <mat-list>
+                        <mat-list-item *ngFor="let item of funnelData">
+                            <mat-icon matListIcon>{{ item.icon }}</mat-icon>
+                            <div matLine>{{ item.label }}</div>
+                            <div matLine class="value">{{ item.value | number }}</div>
+                        </mat-list-item>
+                    </mat-list>
+                </mat-card-content>
+            </mat-card>
+        </section>
+    </ng-container>
+</div>

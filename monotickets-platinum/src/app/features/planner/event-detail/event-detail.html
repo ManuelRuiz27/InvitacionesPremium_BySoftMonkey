@@ -1,20 +1,44 @@
 <div class="detail-container">
-    <div class="header">
-        <button mat-icon-button (click)="goBack()">
+    <div class="page-header">
+        <button mat-icon-button class="back-btn" (click)="goBack()">
             <mat-icon>arrow_back</mat-icon>
         </button>
-        <h1>Detalle del Evento</h1>
         @if (event) {
-        <div class="actions">
-            <button mat-raised-button color="primary" (click)="editEvent()">
+        <div class="header-info">
+            <p class="eyebrow">Resumen del evento</p>
+            <div class="title-row">
+                <h1>{{ event.name }}</h1>
+                <mat-chip [ngClass]="getStatusColor(event.status)">
+                    {{ getStatusLabel(event.status) }}
+                </mat-chip>
+            </div>
+            <div class="meta-row">
+                <span>
+                    <mat-icon>event</mat-icon>
+                    {{ formatDate(event.date) }} - {{ event.time }}
+                </span>
+                <span *ngIf="event.locationText">
+                    <mat-icon>place</mat-icon>
+                    {{ event.locationText }}
+                </span>
+                <span>
+                    <mat-icon>palette</mat-icon>
+                    {{ event.templateType === 'PREMIUM' ? 'Premium' : 'PDF' }}
+                </span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button mat-stroked-button color="primary" (click)="editEvent()">
                 <mat-icon>edit</mat-icon>
                 Editar
             </button>
-            <button mat-raised-button color="warn" (click)="deleteEvent()">
+            <button mat-stroked-button color="warn" (click)="deleteEvent()">
                 <mat-icon>delete</mat-icon>
                 Eliminar
             </button>
         </div>
+        } @else {
+        <h1>Detalle del evento</h1>
         }
     </div>
 
@@ -24,14 +48,27 @@
         <p>Cargando evento...</p>
     </div>
     } @else if (event) {
-    <div class="content-grid">
-        <!-- Main Info Card -->
+    <div class="overview-gap">
+        <mat-card class="stats-card">
+            <mat-card-header>
+                <mat-card-title>Indicadores del evento</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="kpi-grid">
+                    <div class="kpi-card" *ngFor="let kpi of kpis">
+                        <mat-icon>{{ kpi.icon }}</mat-icon>
+                        <div>
+                            <p class="kpi-value">{{ getKpiValue(kpi.key) }}</p>
+                            <p class="kpi-label">{{ kpi.label }}</p>
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
         <mat-card class="info-card">
             <mat-card-header>
-                <mat-card-title>{{ event.name }}</mat-card-title>
-                <mat-chip [color]="getStatusColor(event.status)">
-                    {{ getStatusLabel(event.status) }}
-                </mat-chip>
+                <mat-card-title>Información general</mat-card-title>
             </mat-card-header>
             <mat-card-content>
                 <div class="info-grid">
@@ -42,7 +79,6 @@
                             <p>{{ getTypeLabel(event.type) }}</p>
                         </div>
                     </div>
-
                     <div class="info-item">
                         <mat-icon>event</mat-icon>
                         <div>
@@ -50,7 +86,6 @@
                             <p>{{ formatDate(event.date) }}</p>
                         </div>
                     </div>
-
                     <div class="info-item">
                         <mat-icon>schedule</mat-icon>
                         <div>
@@ -58,7 +93,6 @@
                             <p>{{ event.time }}</p>
                         </div>
                     </div>
-
                     <div class="info-item full-width">
                         <mat-icon>location_on</mat-icon>
                         <div>
@@ -66,7 +100,6 @@
                             <p>{{ event.locationText }}</p>
                         </div>
                     </div>
-
                     <div class="info-item">
                         <mat-icon>palette</mat-icon>
                         <div>
@@ -74,7 +107,6 @@
                             <p>{{ event.templateType === 'PREMIUM' ? 'Premium' : 'PDF' }}</p>
                         </div>
                     </div>
-
                     @if (event.templateVariant) {
                     <div class="info-item">
                         <mat-icon>style</mat-icon>
@@ -88,81 +120,57 @@
             </mat-card-content>
         </mat-card>
 
-        <!-- Quick Stats Card -->
-        <mat-card class="stats-card">
+        <mat-card class="actions-card">
             <mat-card-header>
-                <mat-card-title>Estadísticas Rápidas</mat-card-title>
+                <mat-card-title>Acciones rápidas</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-                <div class="stat-item">
-                    <mat-icon>mail</mat-icon>
-                    <div>
-                        <p class="stat-value">0</p>
-                        <p class="stat-label">Invitaciones</p>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <mat-icon>check_circle</mat-icon>
-                    <div>
-                        <p class="stat-value">0</p>
-                        <p class="stat-label">Confirmaciones</p>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <mat-icon>qr_code_scanner</mat-icon>
-                    <div>
-                        <p class="stat-value">0</p>
-                        <p class="stat-label">Escaneos</p>
-                    </div>
+                <div class="action-buttons primary">
+                    <button mat-stroked-button (click)="sendInvitations()">
+                        <mat-icon>send</mat-icon>
+                        Enviar invitaciones
+                    </button>
+                    <button mat-stroked-button (click)="navigateToGuests()">
+                        <mat-icon>people</mat-icon>
+                        Ver invitados
+                    </button>
+                    <button mat-stroked-button (click)="customizeInvitation()">
+                        <mat-icon>brush</mat-icon>
+                        Editar invitación
+                    </button>
+                    <button mat-stroked-button (click)="viewMetrics()">
+                        <mat-icon>insights</mat-icon>
+                        Ver métricas
+                    </button>
+                    <button mat-stroked-button (click)="openExportDialog()">
+                        <mat-icon>file_download</mat-icon>
+                        Exportar lista
+                    </button>
                 </div>
             </mat-card-content>
         </mat-card>
 
-        <!-- Action Buttons Card -->
-        <mat-card class="actions-card full-width">
+        <mat-card class="secondary-actions-card">
             <mat-card-header>
-                <mat-card-title>Gestión del Evento</mat-card-title>
+                <mat-card-title>Operación del evento</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-                <div class="action-buttons">
-                    <button mat-raised-button class="action-btn guests-btn" (click)="navigateToGuests()">
-                        <mat-icon>people</mat-icon>
-                        <div class="btn-content">
-                            <span class="btn-title">Invitados</span>
-                            <span class="btn-subtitle">Gestionar lista de invitados</span>
-                        </div>
-                    </button>
-
-                    <button mat-raised-button class="action-btn invitations-btn" (click)="navigateToInvitations()">
+                <div class="action-buttons secondary">
+                    <button mat-raised-button class="action-btn" (click)="navigateToInvitations()">
                         <mat-icon>mail</mat-icon>
-                        <div class="btn-content">
-                            <span class="btn-title">Invitaciones</span>
-                            <span class="btn-subtitle">Enviar y gestionar invitaciones</span>
-                        </div>
+                        Gestionar invitaciones
                     </button>
-
-                    <button mat-raised-button class="action-btn scans-btn" (click)="viewScans()">
+                    <button mat-raised-button class="action-btn" (click)="viewScans()">
                         <mat-icon>qr_code_scanner</mat-icon>
-                        <div class="btn-content">
-                            <span class="btn-title">Escaneos</span>
-                            <span class="btn-subtitle">Ver asistencia en tiempo real</span>
-                        </div>
+                        Panel de escaneos
                     </button>
-
-                    <button mat-raised-button class="action-btn rsvp-btn" (click)="manageRSVP()">
+                    <button mat-raised-button class="action-btn" (click)="manageRSVP()">
                         <mat-icon>link</mat-icon>
-                        <div class="btn-content">
-                            <span class="btn-title">RSVP Público</span>
-                            <span class="btn-subtitle">Generar formulario de registro</span>
-                        </div>
+                        Formulario público
                     </button>
-
-                    <button mat-raised-button class="action-btn host-btn" (click)="manageHostLinks()">
+                    <button mat-raised-button class="action-btn" (click)="manageHostLinks()">
                         <mat-icon>admin_panel_settings</mat-icon>
-                        <div class="btn-content">
-                            <span class="btn-title">Links Anfitriones</span>
-                            <span class="btn-subtitle">Gestionar accesos de anfitriones</span>
-                        </div>
+                        Links anfitriones
                     </button>
                 </div>
             </mat-card-content>
@@ -170,3 +178,21 @@
     </div>
     }
 </div>
+
+<ng-template #exportDialog>
+    <h2 mat-dialog-title>Exportar lista de invitados</h2>
+    <mat-dialog-content>
+        <p>Selecciona el formato en el que deseas descargar la lista.</p>
+        <mat-radio-group [(ngModel)]="exportFormat" class="export-radio-group">
+            <mat-radio-button value="csv">CSV (separado por comas)</mat-radio-button>
+            <mat-radio-button value="xlsx">Excel (.xlsx)</mat-radio-button>
+        </mat-radio-group>
+        <p class="dialog-hint">Consulta las columnas en EXPORT_FORMATOS_MONOTICKETS.md.</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close [disabled]="exporting">Cancelar</button>
+        <button mat-raised-button color="primary" (click)="confirmExport()" [disabled]="exporting">
+            {{ exporting ? 'Generando...' : 'Descargar' }}
+        </button>
+    </mat-dialog-actions>
+</ng-template>

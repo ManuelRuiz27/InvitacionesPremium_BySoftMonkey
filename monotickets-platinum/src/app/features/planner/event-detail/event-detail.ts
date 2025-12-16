@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -6,33 +6,59 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 
-import { PlannerService } from '../services/planner.service';
+import { PlannerService, EventStats } from '../services/planner.service';
 import { type Event, EventType, EventStatus } from '../../../core/models';
+import { getEventStatusMeta } from '../../../shared/utils/status.utils';
 
 @Component({
   selector: 'app-event-detail',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule,
+    MatRadioModule,
+    MatSnackBarModule
   ],
   templateUrl: './event-detail.html',
   styleUrl: './event-detail.scss'
 })
 export class EventDetail implements OnInit {
+  @ViewChild('exportDialog') exportDialogTemplate?: TemplateRef<any>;
+
   event: Event | null = null;
+  eventStats: EventStats | null = null;
   loading = true;
   eventId: string | null = null;
+  exportFormat: 'csv' | 'xlsx' = 'csv';
+  exporting = false;
+  private exportDialogRef?: MatDialogRef<any>;
+
+  readonly kpis: Array<{ key: keyof EventStats; label: string; icon: string }> = [
+    { key: 'invitationsGenerated', label: 'Invitaciones generadas', icon: 'mail' },
+    { key: 'confirmations', label: 'Confirmados', icon: 'check_circle' },
+    { key: 'pending', label: 'Pendientes', icon: 'schedule' },
+    { key: 'declined', label: 'Declinados', icon: 'block' },
+    { key: 'scanned', label: 'Escaneados', icon: 'qr_code_scanner' }
+  ];
 
   constructor(
     private plannerService: PlannerService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -44,9 +70,13 @@ export class EventDetail implements OnInit {
 
   loadEvent(id: string): void {
     this.loading = true;
-    this.plannerService.getEventById(id).subscribe({
-      next: (event) => {
+    forkJoin({
+      event: this.plannerService.getEventById(id),
+      stats: this.plannerService.getEventStats(id)
+    }).subscribe({
+      next: ({ event, stats }) => {
         this.event = event;
+        this.eventStats = stats;
         this.loading = false;
       },
       error: (error) => {
@@ -72,29 +102,11 @@ export class EventDetail implements OnInit {
   }
 
   getStatusLabel(status: EventStatus): string {
-    switch (status) {
-      case EventStatus.PUBLISHED:
-        return 'Publicado';
-      case EventStatus.DRAFT:
-        return 'Borrador';
-      case EventStatus.CLOSED:
-        return 'Cerrado';
-      default:
-        return status;
-    }
+    return getEventStatusMeta(status).label;
   }
 
   getStatusColor(status: EventStatus): string {
-    switch (status) {
-      case EventStatus.PUBLISHED:
-        return 'primary';
-      case EventStatus.DRAFT:
-        return 'accent';
-      case EventStatus.CLOSED:
-        return 'warn';
-      default:
-        return '';
-    }
+    return getEventStatusMeta(status).className;
   }
 
   formatDate(date: Date): string {
@@ -157,6 +169,73 @@ export class EventDetail implements OnInit {
     if (this.eventId) {
       this.router.navigate(['/planner/events', this.eventId, 'host-links']);
     }
+  }
+
+  customizeInvitation(): void {
+    if (!this.eventId || !this.event) return;
+    const target =
+      this.event.templateType === 'PREMIUM'
+        ? ['/planner/events', this.eventId, 'premium']
+        : ['/planner/events', this.eventId, 'templates'];
+    this.router.navigate(target);
+  }
+
+  sendInvitations(): void {
+    if (this.eventId) {
+      this.router.navigate(['/planner/events', this.eventId, 'invitations', 'generate']);
+    }
+  }
+
+  viewMetrics(): void {
+    if (this.eventId) {
+      this.router.navigate(['/planner/events', this.eventId, 'metrics']);
+    }
+  }
+
+  openExportDialog(): void {
+    if (!this.exportDialogTemplate) return;
+    this.exportFormat = 'csv';
+    this.exporting = false;
+    this.exportDialogRef = this.dialog.open(this.exportDialogTemplate, { width: '420px' });
+  }
+
+  confirmExport(): void {
+    if (!this.eventId || this.exporting) {
+      return;
+    }
+    this.exporting = true;
+    this.plannerService.exportGuestsList(this.eventId, this.exportFormat).subscribe({
+      next: (blob) => {
+        const slug = (this.event?.name || 'evento').replace(/\s+/g, '_').toLowerCase();
+        this.downloadFile(blob, `guests-${slug}.${this.exportFormat}`);
+        this.exporting = false;
+        this.exportDialogRef?.close();
+        this.showNotification('Exportación generada correctamente');
+      },
+      error: (error) => {
+        console.error('Error exporting guests', error);
+        this.exporting = false;
+        this.showNotification('No se pudo generar la exportación');
+      }
+    });
+  }
+
+  private downloadFile(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  private showNotification(message: string): void {
+    this.snackBar.open(message, 'OK', { duration: 3000 });
+  }
+
+  getKpiValue(key: keyof EventStats): number {
+    if (!this.eventStats) return 0;
+    return Number(this.eventStats[key] ?? 0);
   }
 
   goBack(): void {

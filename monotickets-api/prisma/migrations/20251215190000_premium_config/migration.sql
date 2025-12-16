@@ -1,0 +1,2 @@
+-- Migration placeholder (original SQL not available)
+-- No-op to keep migration history consistent.

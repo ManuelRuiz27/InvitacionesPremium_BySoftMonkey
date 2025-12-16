@@ -1,71 +1,235 @@
-<div class="form-container">
-    <div class="header">
-        <button mat-icon-button (click)="goBack()">
-            <mat-icon>arrow_back</mat-icon>
-        </button>
-        <h1>{{ isEditMode ? 'Editar Evento' : 'Crear Nuevo Evento' }}</h1>
+<div class="event-form">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Planner</p>
+            <h1>{{ isEditMode ? 'Editar invitación' : 'Nueva invitación' }}</h1>
+            <p class="subtitle">Nada se envía sin tu confirmación.</p>
+        </div>
+        <div class="header-actions">
+            <div class="autosave" [ngClass]="autoSaveStatus">
+                <mat-icon>
+                    @switch (autoSaveStatus) {
+                        @case ('saving') { sync }
+                        @case ('saved') { check_circle }
+                        @case ('error') { error }
+                        @default { schedule }
+                    }
+                </mat-icon>
+                <span>
+                    @switch (autoSaveStatus) {
+                        @case ('saving') { Guardando cambios... }
+                        @case ('saved') { Guardado {{ lastSavedAt | date:'shortTime' }} }
+                        @case ('error') { Error al guardar }
+                        @default { Borrador pendiente }
+                    }
+                </span>
+            </div>
+            <button mat-stroked-button (click)="goBack()">
+                <mat-icon>arrow_back</mat-icon>
+                Regresar
+            </button>
+        </div>
     </div>
 
-    <mat-card>
-        @if (loading && isEditMode) {
-        <div class="loading-container">
-            <mat-spinner></mat-spinner>
-            <p>Cargando evento...</p>
-        </div>
-        } @else {
-        <form [formGroup]="eventForm" (ngSubmit)="onSubmit()">
+    @if (loading) {
+    <div class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Cargando datos del evento...</p>
+    </div>
+    } @else {
+    <div class="blocks-stack" [formGroup]="eventForm">
+        <mat-card class="block">
+            <div class="block-header">
+                <div>
+                    <p class="eyebrow">Bloque A</p>
+                    <h2>Datos del evento (sin scroll)</h2>
+                    <p>Completa lo mínimo para generar el borrador.</p>
+                </div>
+            </div>
             <div class="form-grid">
-                <mat-form-field class="full-width">
-                    <mat-label>Nombre del Evento</mat-label>
-                    <input matInput formControlName="name" placeholder="Ej: Boda de Juan y María">
-                    @if (eventForm.get('name')?.hasError('required') && eventForm.get('name')?.touched) {
-                    <mat-error>El nombre es requerido</mat-error>
-                    }
+                <mat-form-field appearance="outline">
+                    <mat-label>Nombre del evento</mat-label>
+                    <input matInput formControlName="name" required>
+                    <mat-error>Nombre requerido (mínimo 3 caracteres)</mat-error>
                 </mat-form-field>
-
-                <mat-form-field>
-                    <mat-label>Tipo de Evento</mat-label>
-                    <mat-select formControlName="type">
+                <mat-form-field appearance="outline">
+                    <mat-label>Tipo de evento</mat-label>
+                    <mat-select formControlName="type" required>
                         @for (type of eventTypes; track type) {
                         <mat-option [value]="type">{{ getTypeLabel(type) }}</mat-option>
                         }
                     </mat-select>
+                    <mat-error>Selecciona un tipo de evento</mat-error>
                 </mat-form-field>
-
-                <mat-form-field>
+                <mat-form-field appearance="outline">
                     <mat-label>Fecha</mat-label>
-                    <input matInput [matDatepicker]="picker" formControlName="date">
+                    <input matInput [matDatepicker]="picker" formControlName="date" required>
                     <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
+                    <mat-error>Selecciona una fecha</mat-error>
                 </mat-form-field>
-
-                <mat-form-field>
+                <mat-form-field appearance="outline">
                     <mat-label>Hora</mat-label>
-                    <input matInput formControlName="time" placeholder="HH:MM" type="time">
+                    <input matInput formControlName="time" placeholder="HH:MM" required>
+                    <mat-error>Ingresa una hora válida (24h)</mat-error>
                 </mat-form-field>
-
-                <mat-form-field class="full-width">
-                    <mat-label>Ubicación</mat-label>
-                    <textarea matInput formControlName="locationText" rows="2"
-                        placeholder="Ej: Hacienda Los Laureles"></textarea>
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Lugar</mat-label>
+                    <input matInput formControlName="locationText" required placeholder="Hacienda / Salón / Dirección">
+                    <mat-error>La ubicación es requerida</mat-error>
                 </mat-form-field>
-
-                <mat-form-field>
-                    <mat-label>Tipo de Plantilla</mat-label>
-                    <mat-select formControlName="templateType">
-                        <mat-option value="PREMIUM">Premium</mat-option>
-                        <mat-option value="PDF">PDF</mat-option>
-                    </mat-select>
+                <mat-form-field appearance="outline">
+                    <mat-label>Latitud (opcional)</mat-label>
+                    <input matInput type="number" formControlName="locationLat" step="0.000001">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Longitud (opcional)</mat-label>
+                    <input matInput type="number" formControlName="locationLng" step="0.000001">
                 </mat-form-field>
             </div>
+        </mat-card>
 
-            <div class="form-actions">
-                <button mat-stroked-button type="button" (click)="goBack()">Cancelar</button>
-                <button mat-raised-button color="primary" type="submit" [disabled]="loading">
-                    {{ isEditMode ? 'Guardar' : 'Crear' }}
+        <mat-card class="block">
+            <div class="block-header">
+                <div>
+                    <p class="eyebrow">Bloque B</p>
+                    <h2>Tipo de invitación</h2>
+                    <p>La selección define el flujo. No se envía nada sin tu confirmación.</p>
+                </div>
+            </div>
+            <div class="invite-modes">
+                @for (mode of inviteModes; track mode.type) {
+                <button type="button" class="invite-card" [class.active]="eventForm.value.templateType === mode.type"
+                    (click)="selectInviteMode(mode.type)">
+                    <div class="icon-badge">
+                        <mat-icon>{{ mode.icon }}</mat-icon>
+                    </div>
+                    <div class="invite-content">
+                        <h3>{{ mode.title }}</h3>
+                        <p>{{ mode.description }}</p>
+                    </div>
+                    <mat-icon class="chevron">chevron_right</mat-icon>
+                </button>
+                }
+            </div>
+            @if (eventForm.value.templateType === templateTypes.PDF) {
+            <div class="template-manager">
+                <p>¿Necesitas ajustar la plantilla PDF o subir un diseño propio?</p>
+                <button mat-stroked-button color="primary" (click)="goToTemplateCatalog()"
+                    [disabled]="!eventId || isAutosaveInProgress">
+                    <mat-icon>palette</mat-icon>
+                    Abrir TemplateCarousel
                 </button>
             </div>
-        </form>
-        }
-    </mat-card>
+            }
+        </mat-card>
+
+        <mat-card class="block">
+            <div class="block-header">
+                <div>
+                    <p class="eyebrow">Bloque C</p>
+                    <h2>Invitados</h2>
+                    <p>Acciones visibles. Ninguna es obligatoria.</p>
+                </div>
+            </div>
+            <div class="actions-grid">
+                <div class="action-card">
+                    <div>
+                        <h3>Subir lista (CSV/Excel)</h3>
+                        <p>Importa tu base y edita con GuestTable.</p>
+                    </div>
+                    <button mat-stroked-button color="primary" (click)="navigateToGuestUpload()" [disabled]="!eventId">
+                        <mat-icon>upload_file</mat-icon>
+                        Subir lista
+                    </button>
+                </div>
+                <div class="action-card">
+                    <div>
+                        <h3>Generar link de formulario RSVP</h3>
+                        <p>Los invitados se registran solos.</p>
+                        @if (rsvpLink) {
+                        <div class="generated-link">
+                            <code>{{ rsvpLink }}</code>
+                            <button type="button" mat-icon-button (click)="copyLink(rsvpLink)" matTooltip="Copiar link">
+                                <mat-icon>content_copy</mat-icon>
+                            </button>
+                        </div>
+                        }
+                    </div>
+                    <button mat-flat-button color="primary" (click)="openRsvpGenerator()"
+                        [disabled]="generatingRsvpLink || !eventId">
+                        @if (generatingRsvpLink) {
+                        <mat-spinner diameter="20"></mat-spinner>
+                        } @else {
+                        <mat-icon>link</mat-icon>
+                        Generar link
+                        }
+                    </button>
+                </div>
+                <div class="action-card">
+                    <div>
+                        <h3>Generar link de anfitriones</h3>
+                        <p>Permite que suban invitados adicionales.</p>
+                        @if (hostLink) {
+                        <div class="generated-link">
+                            <code>{{ hostLink }}</code>
+                            <button type="button" mat-icon-button (click)="copyLink(hostLink)"
+                                matTooltip="Copiar link">
+                                <mat-icon>content_copy</mat-icon>
+                            </button>
+                        </div>
+                        }
+                    </div>
+                    <button mat-flat-button color="primary" (click)="openHostLinkGenerator()"
+                        [disabled]="generatingHostLink || !eventId">
+                        @if (generatingHostLink) {
+                        <mat-spinner diameter="20"></mat-spinner>
+                        } @else {
+                        <mat-icon>admin_panel_settings</mat-icon>
+                        Generar link
+                        }
+                    </button>
+                </div>
+            </div>
+        </mat-card>
+
+        <mat-card class="block">
+            <div class="block-header">
+                <div>
+                    <p class="eyebrow">Bloque D</p>
+                    <h2>Configuración mínima</h2>
+                    <p>Defaults para invitaciones generadas.</p>
+                </div>
+            </div>
+            <div class="config-grid">
+                <mat-form-field appearance="outline">
+                    <mat-label>Personas por invitación</mat-label>
+                    <input matInput type="number" min="1" max="10" formControlName="guestCountDefault">
+                    <mat-hint>1 - 10 personas</mat-hint>
+                </mat-form-field>
+                <mat-slide-toggle formControlName="allowPartialEntry">
+                    Permitir entrada parcial
+                </mat-slide-toggle>
+            </div>
+        </mat-card>
+
+        <mat-card class="block cta-block">
+            <div>
+                <h2>¿Listo para generar invitaciones?</h2>
+                <p>Puedes hacer cambios después. Nada se envía sin tu confirmación.</p>
+            </div>
+            <div class="cta-actions">
+                <button mat-flat-button color="accent" (click)="generateInvitations()"
+                    [disabled]="isAutosaveInProgress || !eventId">
+                    <mat-icon>auto_awesome</mat-icon>
+                    Generar invitaciones
+                </button>
+                <button mat-stroked-button (click)="navigateToGuests()" [disabled]="!eventId">
+                    <mat-icon>people</mat-icon>
+                    Ver invitados
+                </button>
+            </div>
+        </mat-card>
+    </div>
+    }
 </div>

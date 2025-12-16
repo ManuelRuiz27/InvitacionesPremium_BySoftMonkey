@@ -1,0 +1,125 @@
+<div class="qr-placement-container">
+  <div class="header">
+    <button mat-icon-button (click)="router.navigate(['/planner/events', eventId, 'templates'])">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <p class="eyebrow">Bloque 1.3</p>
+      <h1>Colocar QR en PDF</h1>
+      <p>Haz coincidir el cuadro con la zona exacta donde se imprimirá el QR. Nada se envía sin tu confirmación.</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="save()" [disabled]="saving || loading">
+      <mat-spinner *ngIf="saving" diameter="18"></mat-spinner>
+      <ng-container *ngIf="!saving">
+        <mat-icon>check_circle</mat-icon>
+        Guardar área
+      </ng-container>
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Cargando plantilla...</p>
+    </div>
+  } @else if (template) {
+    <div class="content">
+      <mat-card class="preview-card">
+        <div class="preview-header">
+          <div>
+            <p class="eyebrow">Vista previa</p>
+            <h2>{{ template.pdfUrl ? 'Arrastra el QR dentro del PDF' : 'Usa la imagen de referencia' }}</h2>
+          </div>
+          <div class="page-controls">
+            <button mat-icon-button (click)="onPageChange(placement.page - 1)" [disabled]="placement.page <= 1">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <span>Página {{ placement.page }} / {{ template.totalPages }}</span>
+            <button mat-icon-button (click)="onPageChange(placement.page + 1)" [disabled]="placement.page >= template.totalPages">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="pdf-preview" #previewWrapper>
+          @if (renderingPage) {
+            <div class="preview-loader">
+              <mat-spinner diameter="32"></mat-spinner>
+            </div>
+          }
+
+          @if (template.pdfUrl) {
+            <canvas #pdfCanvas class="pdf-canvas"></canvas>
+          } @else {
+            <img [src]="template.previewUrl" alt="Vista previa PDF">
+          }
+
+          <div class="qr-overlay"
+               [ngStyle]="getOverlayStyles()"
+               (pointerdown)="startInteraction($event, 'move')">
+            <span>QR</span>
+
+            <div class="handle handle-nw" (pointerdown)="startInteraction($event, 'resize', 'nw')"></div>
+            <div class="handle handle-ne" (pointerdown)="startInteraction($event, 'resize', 'ne')"></div>
+            <div class="handle handle-se" (pointerdown)="startInteraction($event, 'resize', 'se')"></div>
+            <div class="handle handle-sw" (pointerdown)="startInteraction($event, 'resize', 'sw')"></div>
+            <div class="handle handle-n" (pointerdown)="startInteraction($event, 'resize', 'n')"></div>
+            <div class="handle handle-e" (pointerdown)="startInteraction($event, 'resize', 'e')"></div>
+            <div class="handle handle-s" (pointerdown)="startInteraction($event, 'resize', 's')"></div>
+            <div class="handle handle-w" (pointerdown)="startInteraction($event, 'resize', 'w')"></div>
+          </div>
+        </div>
+        <p class="helper-text">Coloca el QR justo donde lo necesitas. Puedes ajustar con las guías o volver más tarde, nada se envía sin tu confirmación.</p>
+      </mat-card>
+
+      <mat-card class="controls-card">
+        <h2>Posición y tamaño</h2>
+        <div class="control-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Página</mat-label>
+            <input matInput type="number" [ngModel]="placement.page" (ngModelChange)="onPageChange($event)" [min]="1" [max]="template.totalPages">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Rotación (°)</mat-label>
+            <input matInput type="number" [ngModel]="placement.rotation ?? 0" (ngModelChange)="updateRotation($event)">
+          </mat-form-field>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider">
+            <label>X (%)</label>
+            <mat-slider [min]="0" [max]="100 - placement.width" step="1" [ngModel]="placement.x" (ngModelChange)="updateCoordinate('x', $event)"></mat-slider>
+          </div>
+          <div class="slider">
+            <label>Y (%)</label>
+            <mat-slider [min]="0" [max]="100 - placement.height" step="1" [ngModel]="placement.y" (ngModelChange)="updateCoordinate('y', $event)"></mat-slider>
+          </div>
+          <div class="slider">
+            <label>Ancho (%)</label>
+            <mat-slider [min]="10" [max]="100 - placement.x" step="1" [ngModel]="placement.width" (ngModelChange)="updateDimension('width', $event)"></mat-slider>
+          </div>
+          <div class="slider">
+            <label>Alto (%)</label>
+            <mat-slider [min]="10" [max]="100 - placement.y" step="1" [ngModel]="placement.height" (ngModelChange)="updateDimension('height', $event)"></mat-slider>
+          </div>
+          <div class="slider">
+            <label>Rotación</label>
+            <mat-slider min="-180" max="180" step="1" [ngModel]="placement.rotation ?? 0" (ngModelChange)="updateRotation($event)"></mat-slider>
+          </div>
+        </div>
+
+        <div class="actions">
+        <button mat-stroked-button type="button" (click)="resetPlacement()">
+          <mat-icon>center_focus_strong</mat-icon>
+          Recentrar
+        </button>
+      </div>
+    </mat-card>
+  </div>
+  } @else {
+    <div class="loading">
+      <mat-icon>picture_as_pdf</mat-icon>
+      <p>No hay plantilla PDF seleccionada.</p>
+    </div>
+  }
+</div>

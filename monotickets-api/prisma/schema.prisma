@@ -16,6 +16,13 @@ enum UserRole {
   STAFF
 }
 
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  BLOCKED
+}
+
 enum RsvpStatus {
   PENDING
   CONFIRMED
@@ -23,6 +30,13 @@ enum RsvpStatus {
 }
 
 enum InvitationStatus {
+  CREATED
+  AWAITING_RSVP
+  ACTIVE_FOR_EVENT_DAY
+  PARTIALLY_USED
+  FULLY_USED
+  REVOKED
+  // Legacy statuses for backwards compatibility
   PENDING
   SENT
   DELIVERED
@@ -30,6 +44,12 @@ enum InvitationStatus {
 }
 
 enum ScanStatus {
+  VALID_FULL
+  VALID_PARTIAL
+  NOT_CONFIRMED
+  EVENT_BLOCKED
+  REVOKED
+  // Legacy statuses
   VALID
   DUPLICATE
   INVALID
@@ -47,6 +67,21 @@ enum DeliveryStatus {
   SENT
   DELIVERED
   FAILED
+  INVALID_NUMBER
+}
+
+enum InviteMode {
+  PDF
+  PREMIUM
+}
+
+enum MediaType {
+  IMAGE
+}
+
+enum StaffStatus {
+  ACTIVE
+  INACTIVE
 }
 
 model User {
@@ -56,46 +91,67 @@ model User {
   fullName  String
   role      UserRole
   active    Boolean  @default(true)
+  brandDefaults Json?
+  preferredInviteMode InviteMode @default(PDF)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
   // Relations
   eventsAsPlanner Event[]  @relation("PlannerEvents")
   scans           Scan[]   @relation("StaffScans")
+  templates       PdfTemplate[] @relation("PlannerTemplates")
+  media           Media[]       @relation("PlannerMedia")
   
   @@map("users")
 }
 
 model Event {
-  id          String   @id @default(uuid())
-  name        String
-  date        DateTime
-  location    String?
-  description String?
-  plannerId   String
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String      @id @default(uuid())
+  name              String
+  category          String?
+  eventAt           DateTime
+  venueText         String?
+  location          String?
+  description       String?
+  inviteMode        InviteMode  @default(PDF)
+  guestCountDefault Int         @default(1)
+  allowPartialEntry Boolean     @default(true)
+  plannerId         String
+  active            Boolean     @default(true)
+  status            EventStatus @default(DRAFT)
+  publishedAt       DateTime?
+  closedAt          DateTime?
+  blockedAt         DateTime?
+  blockedBy         String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
   
   // Relations
-  planner     User         @relation("PlannerEvents", fields: [plannerId], references: [id])
-  guests      Guest[]
-  invitations Invitation[]
-  scans       Scan[]
+  planner        User            @relation("PlannerEvents", fields: [plannerId], references: [id])
+  guests         Guest[]
+  invitations    Invitation[]
+  scans          Scan[]
+  rsvpConfig     RsvpConfig?
+  premiumConfig  PremiumConfig?
+  pdfConfig      EventPdfConfig?
+  staffMembers   Staff[]
   
   @@map("events")
 }
 
 model Guest {
-  id         String     @id @default(uuid())
-  fullName   String
-  phone      String?
-  email      String?
-  guestCount Int        @default(1)
-  rsvpStatus RsvpStatus @default(PENDING)
-  eventId    String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id               String     @id @default(uuid())
+  fullName         String
+  phone            String?
+  email            String?
+  guestCount       Int        @default(1)
+  rsvpStatus       RsvpStatus @default(PENDING)
+  eventId          String
+  inviteReceivedAt DateTime?
+  confirmedAt      DateTime?
+  declinedAt       DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
   
   // Relations
   event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
@@ -105,37 +161,42 @@ model Guest {
 }
 
 model Invitation {
-  id         String           @id @default(uuid())
-  qrToken    String           @unique
-  guestId    String
-  eventId    String
-  status     InvitationStatus @default(PENDING)
-  sentAt     DateTime?
-  deliveredAt DateTime?
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  id             String           @id @default(uuid())
+  qrToken        String?          @unique // Nullable, JWT will be generated dynamically
+  guestId        String
+  eventId        String
+  status         InvitationStatus @default(CREATED)
+  remainingCount Int              @default(1) // Initialized with guestCount
+  revokedAt      DateTime?
+  sentAt         DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
   
   // Relations
-  guest Guest @relation(fields: [guestId], references: [id], onDelete: Cascade)
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  scans Scan[]
+  guest            Guest             @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  event            Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  scans            Scan[]
   deliveryAttempts DeliveryAttempt[]
   
   @@map("invitations")
 }
 
 model Scan {
-  id         String     @id @default(uuid())
-  qrToken    String
-  eventId    String
-  scannedBy  String
-  status     ScanStatus
-  scannedAt  DateTime   @default(now())
+  id                  String     @id @default(uuid())
+  qrToken             String?
+  invitationId        String?    // Add direct link to invitation
+  eventId             String
+  scannedBy           String
+  status              ScanStatus
+  enteredNames        String[]   @default([]) // Names that entered in this scan
+  remainingCountAfter Int?       // Remaining count after this scan
+  scannedAt           DateTime   @default(now())
   
   // Relations
-  event      Event      @relation(fields: [eventId], references: [id])
-  staff      User       @relation("StaffScans", fields: [scannedBy], references: [id])
-  invitation Invitation @relation(fields: [qrToken], references: [qrToken])
+  event      Event       @relation(fields: [eventId], references: [id])
+  staff      User        @relation("StaffScans", fields: [scannedBy], references: [id])
+  invitation Invitation? @relation(fields: [invitationId], references: [id])
   
   @@map("scans")
 }
@@ -157,4 +218,95 @@ model DeliveryAttempt {
   invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   
   @@map("delivery_attempts")
+}
+
+model RsvpConfig {
+  id                   String   @id @default(uuid())
+  eventId              String   @unique
+  allowRsvp            Boolean  @default(true)
+  rsvpDeadlineDays     Int      @default(0) // 0 = hasta el día del evento
+  revocationWindowDays Int      @default(20) // Días desde inviteReceivedAt
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@map("rsvp_configs")
+}
+
+model PremiumConfig {
+  id                  String   @id @default(uuid())
+  eventId             String   @unique
+  effect              String
+  colors              Json
+  sections            Json
+  reduceMotionDefault Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("premium_configs")
+}
+
+model PdfTemplate {
+  id              String   @id @default(uuid())
+  ownerPlannerId  String?
+  category        String
+  name            String
+  pdfUrl          String
+  thumbUrl        String?
+  isSystemTemplate Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  ownerPlanner User? @relation("PlannerTemplates", fields: [ownerPlannerId], references: [id])
+  eventConfigs EventPdfConfig[]
+
+  @@map("pdf_templates")
+}
+
+model EventPdfConfig {
+  id           String   @id @default(uuid())
+  eventId      String   @unique
+  templateId   String?
+  customPdfUrl String?
+  qrPlacement  Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  event    Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  template PdfTemplate? @relation(fields: [templateId], references: [id])
+
+  @@map("event_pdf_configs")
+}
+
+model Media {
+  id             String    @id @default(uuid())
+  ownerPlannerId String?
+  type           MediaType
+  url            String
+  sizeBytes      Int
+  mime           String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  ownerPlanner User? @relation("PlannerMedia", fields: [ownerPlannerId], references: [id])
+
+  @@map("media")
+}
+
+model Staff {
+  id        String      @id @default(uuid())
+  eventId   String
+  name      String
+  token     String      @unique
+  status    StaffStatus @default(ACTIVE)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("staff")
 }

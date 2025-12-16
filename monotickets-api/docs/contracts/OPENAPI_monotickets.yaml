@@ -1,0 +1,1447 @@
+openapi: 3.0.0
+paths:
+  /:
+    get:
+      operationId: AppController_getHello
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags:
+        - App
+  /auth/login:
+    post:
+      operationId: AuthController_login
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginDto"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                example:
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  user:
+                    id: 550e8400-e29b-41d4-a716-446655440000
+                    email: planner@monotickets.com
+                    fullName: Juan Pérez
+                    role: PLANNER
+                    createdAt: 2024-01-15T00:00:00.000Z
+                    updatedAt: 2024-01-15T00:00:00.000Z
+        "401":
+          description: Invalid credentials
+      summary: User login
+      tags:
+        - auth
+  /scanner/validate:
+    post:
+      operationId: ScannerController_validate
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScanValidationDto"
+      responses:
+        "200":
+          description: QR validated successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  valid: true
+                  status: VALID
+                  guest:
+                    id: 550e8400-e29b-41d4-a716-446655440000
+                    fullName: Juan Pérez
+                    guestCount: 2
+                    inviteType: STANDARD
+                  scan:
+                    id: 550e8400-e29b-41d4-a716-446655440001
+                    scannedAt: 2025-12-05T15:00:00.000Z
+                    scannedBy: 550e8400-e29b-41d4-a716-446655440002
+                  message: Acceso permitido
+        "400":
+          description: Invalid QR or duplicate scan
+      security: &a1
+        - bearer: []
+      summary: Validate QR code and register scan
+      tags: &a2
+        - scanner
+  /scanner/confirm-partial:
+    post:
+      operationId: ScannerController_confirmPartial
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmPartialEntryDto"
+      responses:
+        "200":
+          description: Partial entry confirmed successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  success: true
+                  scan:
+                    id: 550e8400-e29b-41d4-a716-446655440001
+                    enteredNames:
+                      - Juan Pérez
+                      - María García
+                    remainingCount: 2
+                    status: VALID_PARTIAL
+                  message: Acceso permitido - Quedan 2 personas
+        "400":
+          description: Invalid request or too many names
+        "404":
+          description: Invitation not found
+      security: *a1
+      summary: Confirm partial entry for group invitation
+      tags: *a2
+  /scanner/history/{eventId}:
+    get:
+      operationId: ScannerController_getHistory
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Scan history retrieved successfully
+      security: *a1
+      summary: Get scan history for an event
+      tags: *a2
+  /scanner/sync:
+    post:
+      operationId: ScannerController_sync
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SyncScansDto"
+      responses:
+        "200":
+          description: Scans synced successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  synced: 45
+                  failed: 5
+                  results: []
+      security: *a1
+      summary: Sync offline scans
+      tags: *a2
+  /events:
+    post:
+      operationId: EventsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventDto"
+      responses:
+        "201":
+          description: Event created successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  id: 550e8400-e29b-41d4-a716-446655440000
+                  name: Boda de Juan y María
+                  date: 2025-12-25T18:00:00.000Z
+                  location: Jardín Las Rosas, CDMX
+                  description: Celebración de nuestra boda
+                  plannerId: 550e8400-e29b-41d4-a716-446655440001
+                  active: true
+                  createdAt: 2025-12-05T15:00:00.000Z
+                  updatedAt: 2025-12-05T15:00:00.000Z
+        "400":
+          description: Invalid input
+      security: &a3
+        - bearer: []
+      summary: Create a new event
+      tags: &a4
+        - events
+    get:
+      operationId: EventsController_findAll
+      parameters:
+        - name: plannerId
+          required: false
+          in: query
+          description: Filter by planner ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Events retrieved successfully
+      security: *a3
+      summary: Get all events
+      tags: *a4
+  /events/{id}:
+    get:
+      operationId: EventsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event retrieved successfully
+        "404":
+          description: Event not found
+      security: *a3
+      summary: Get event by ID
+      tags: *a4
+    patch:
+      operationId: EventsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEventDto"
+      responses:
+        "200":
+          description: Event updated successfully
+        "404":
+          description: Event not found
+      security: *a3
+      summary: Update event
+      tags: *a4
+    delete:
+      operationId: EventsController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event deleted successfully
+        "404":
+          description: Event not found
+      security: *a3
+      summary: Delete event (soft delete)
+      tags: *a4
+  /events/{id}/stats:
+    get:
+      operationId: EventsController_getStats
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  totalGuests: 150
+                  totalInvitations: 150
+                  totalScans: 120
+                  confirmedGuests: 140
+      security: *a3
+      summary: Get event statistics
+      tags: *a4
+  /events/{id}/publish:
+    patch:
+      operationId: EventsController_publish
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event published successfully
+      security: *a3
+      summary: Publish event
+      tags: *a4
+  /events/{id}/close:
+    patch:
+      operationId: EventsController_close
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event closed successfully
+      security: *a3
+      summary: Close event
+      tags: *a4
+  /events/{id}/block:
+    patch:
+      operationId: EventsController_block
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event blocked successfully
+      security: *a3
+      summary: Block event
+      tags: *a4
+  /events/{id}/unblock:
+    patch:
+      operationId: EventsController_unblock
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event unblocked successfully
+      security: *a3
+      summary: Unblock event
+      tags: *a4
+  /events/{eventId}/guests:
+    post:
+      operationId: GuestsController_create
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGuestDto"
+      responses:
+        "201":
+          description: Guest created successfully
+        "404":
+          description: Event not found
+      security: &a5
+        - bearer: []
+      summary: Create a new guest for an event
+      tags: &a6
+        - guests
+    get:
+      operationId: GuestsController_findAll
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Guests retrieved successfully
+      security: *a5
+      summary: Get all guests for an event
+      tags: *a6
+  /events/{eventId}/guests/bulk:
+    post:
+      operationId: GuestsController_bulkCreate
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkUploadDto"
+      responses:
+        "201":
+          description: Guests created successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  message: Successfully created 50 guests
+                  count: 50
+                  guests: []
+        "400":
+          description: Invalid CSV data
+        "404":
+          description: Event not found
+      security: *a5
+      summary: Bulk create guests (CSV upload)
+      tags: *a6
+  /events/{eventId}/guests/stats:
+    get:
+      operationId: GuestsController_getStats
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Guest stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  totalGuests: 150
+                  confirmedGuests: 120
+                  pendingGuests: 25
+                  declinedGuests: 5
+                  totalGuestCount: 300
+      security: *a5
+      summary: Get guest statistics for an event
+      tags: *a6
+  /guests/{id}:
+    get:
+      operationId: GuestsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Guest retrieved successfully
+        "404":
+          description: Guest not found
+      security: *a5
+      summary: Get guest by ID
+      tags: *a6
+    patch:
+      operationId: GuestsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGuestDto"
+      responses:
+        "200":
+          description: Guest updated successfully
+        "404":
+          description: Guest not found
+      security: *a5
+      summary: Update guest
+      tags: *a6
+    delete:
+      operationId: GuestsController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Guest deleted successfully
+        "404":
+          description: Guest not found
+      security: *a5
+      summary: Delete guest
+      tags: *a6
+  /events/{eventId}/invitations/generate:
+    post:
+      operationId: InvitationsController_generate
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateInvitationsDto"
+      responses:
+        "201":
+          description: Invitations generated successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  message: Successfully generated 50 invitations
+                  count: 50
+                  invitations: []
+        "400":
+          description: Invalid request or guests already have invitations
+        "404":
+          description: Event not found
+      security: &a7
+        - bearer: []
+      summary: Generate invitations for guests
+      tags: &a8
+        - invitations
+  /events/{eventId}/invitations:
+    get:
+      operationId: InvitationsController_findAll
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invitations retrieved successfully
+      security: *a7
+      summary: Get all invitations for an event
+      tags: *a8
+  /events/{eventId}/invitations/stats:
+    get:
+      operationId: InvitationsController_getStats
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invitation stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  totalInvitations: 150
+                  sentInvitations: 120
+                  deliveredInvitations: 100
+                  pendingInvitations: 30
+                  failedInvitations: 0
+      security: *a7
+      summary: Get invitation statistics for an event
+      tags: *a8
+  /invitations/{id}:
+    get:
+      operationId: InvitationsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invitation retrieved successfully
+        "404":
+          description: Invitation not found
+      security: *a7
+      summary: Get invitation by ID
+      tags: *a8
+  /invitations/{id}/qr:
+    get:
+      operationId: InvitationsController_getQRToken
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: QR token generated successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  invitationId: 123e4567-e89b-12d3-a456-426614174000
+                  qrToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  guestName: Juan Pérez
+                  guestCount: 4
+        "404":
+          description: Invitation not found
+      security: *a7
+      summary: Get JWT-based QR token for invitation
+      tags: *a8
+  /invitations/qr/{qrToken}:
+    get:
+      operationId: InvitationsController_findByQRToken
+      parameters:
+        - name: qrToken
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invitation retrieved successfully
+        "404":
+          description: Invitation not found
+      security: *a7
+      summary: Get invitation by QR token (legacy)
+      tags: *a8
+  /invitations/send:
+    post:
+      operationId: InvitationsController_send
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendInvitationsDto"
+      responses:
+        "200":
+          description: Invitations sent successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  message: Successfully sent 50 invitations
+                  count: 50
+                  method: SMS
+                  invitations: []
+        "400":
+          description: Invalid request
+      security: *a7
+      summary: Send invitations via SMS/Email/WhatsApp
+      tags: *a8
+  /delivery/send:
+    post:
+      operationId: DeliveryController_send
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendDeliveryDto"
+      responses:
+        "200":
+          description: Delivery process started
+      security: &a9
+        - bearer: []
+      summary: Send invitations via SMS and WhatsApp
+      tags: &a10
+        - delivery
+  /delivery/stats/{eventId}:
+    get:
+      operationId: DeliveryController_getStats
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Delivery statistics
+      security: *a9
+      summary: Get delivery statistics for an event
+      tags: *a10
+  /guest/invitation/{token}:
+    get:
+      operationId: GuestController_getInvitation
+      parameters:
+        - name: token
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invitation retrieved successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  invitation:
+                    id: 550e8400-e29b-41d4-a716-446655440000
+                    qrToken: EV-550E8400-E29B41D4-ABC123-DEF456
+                    status: SENT
+                  guest:
+                    id: 550e8400-e29b-41d4-a716-446655440001
+                    fullName: Juan Pérez
+                    guestCount: 2
+                    rsvpStatus: PENDING
+                  event:
+                    id: 550e8400-e29b-41d4-a716-446655440002
+                    name: Boda de Juan y María
+                    date: 2025-12-25T18:00:00.000Z
+                    location: Jardín Las Rosas, CDMX
+                    description: Celebración de nuestra boda
+        "404":
+          description: Invitation not found
+      summary: Get invitation details (public)
+      tags: &a11
+        - guest
+  /guest/rsvp:
+    post:
+      operationId: GuestController_confirmRsvp
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RsvpDto"
+      responses:
+        "200":
+          description: RSVP confirmed successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  message: RSVP confirmed successfully
+                  guest:
+                    id: 550e8400-e29b-41d4-a716-446655440001
+                    fullName: Juan Pérez
+                    rsvpStatus: CONFIRMED
+        "404":
+          description: Invitation not found
+      summary: Confirm RSVP (public)
+      tags: *a11
+  /guest/qr/{token}:
+    get:
+      operationId: GuestController_getQR
+      parameters:
+        - name: token
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: QR code retrieved successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  qrToken: EV-550E8400-E29B41D4-ABC123-DEF456
+                  guestName: Juan Pérez
+                  message: QR code retrieved successfully
+        "404":
+          description: QR code not available
+      summary: Get QR code (public, only for confirmed guests)
+      tags: *a11
+  /guest/calendar/{token}:
+    get:
+      operationId: GuestController_getCalendar
+      parameters:
+        - name: token
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Calendar file generated successfully
+          headers:
+            Content-Type:
+              description: text/calendar
+            Content-Disposition:
+              description: attachment; filename="event.ics"
+        "404":
+          description: Invitation not found
+      summary: Download calendar file .ics (public)
+      tags: *a11
+  /director/dashboard:
+    get:
+      operationId: DirectorController_getDashboard
+      parameters:
+        - name: dateFrom
+          required: false
+          in: query
+          description: Filter by date from
+          schema:
+            example: 2025-01-01T00:00:00.000Z
+            type: string
+        - name: dateTo
+          required: false
+          in: query
+          description: Filter by date to
+          schema:
+            example: 2025-12-31T23:59:59.999Z
+            type: string
+        - name: plannerId
+          required: false
+          in: query
+          description: Filter by planner ID
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+        - name: role
+          required: false
+          in: query
+          description: Filter by role
+          schema:
+            example: PLANNER
+            type: string
+            enum:
+              - DIRECTOR_GLOBAL
+              - PLANNER
+              - STAFF
+      responses:
+        "200":
+          description: Dashboard metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  metrics:
+                    totalEvents: 150
+                    totalPlanners: 25
+                    totalGuests: 5000
+                    totalInvitations: 5000
+                    totalScans: 4200
+                    confirmedGuests: 4500
+                    attendanceRate: 84
+                    confirmationRate: 90
+                  recentEvents: []
+                  topPlanners: []
+      security: &a12
+        - bearer: []
+      summary: Get global dashboard metrics
+      tags: &a13
+        - director
+  /director/planners:
+    get:
+      operationId: DirectorController_getPlanners
+      parameters: []
+      responses:
+        "200":
+          description: Planners retrieved successfully
+      security: *a12
+      summary: Get all planners
+      tags: *a13
+  /director/planners/{id}:
+    get:
+      operationId: DirectorController_getPlannerDetail
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Planner detail retrieved successfully
+        "404":
+          description: Planner not found
+      security: *a12
+      summary: Get planner detail
+      tags: *a13
+  /director/planners/{id}/metrics:
+    get:
+      operationId: DirectorController_getPlannerMetrics
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Planner metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  totalEvents: 10
+                  totalGuests: 500
+                  totalInvitations: 500
+                  totalScans: 420
+                  confirmedGuests: 450
+                  attendanceRate: 84
+                  confirmationRate: 90
+      security: *a12
+      summary: Get planner metrics
+      tags: *a13
+  /director/events:
+    get:
+      operationId: DirectorController_getGlobalEvents
+      parameters:
+        - name: dateFrom
+          required: false
+          in: query
+          description: Filter by date from
+          schema:
+            example: 2025-01-01T00:00:00.000Z
+            type: string
+        - name: dateTo
+          required: false
+          in: query
+          description: Filter by date to
+          schema:
+            example: 2025-12-31T23:59:59.999Z
+            type: string
+        - name: plannerId
+          required: false
+          in: query
+          description: Filter by planner ID
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+        - name: role
+          required: false
+          in: query
+          description: Filter by role
+          schema:
+            example: PLANNER
+            type: string
+            enum:
+              - DIRECTOR_GLOBAL
+              - PLANNER
+              - STAFF
+      responses:
+        "200":
+          description: Events retrieved successfully
+      security: *a12
+      summary: Get all events (global view)
+      tags: *a13
+  /director/stats:
+    get:
+      operationId: DirectorController_getStats
+      parameters: []
+      responses:
+        "200":
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  totalUsers: 30
+                  totalEvents: 150
+                  totalGuests: 5000
+                  totalInvitations: 5000
+                  totalScans: 4200
+                  eventsByMonth: []
+      security: *a12
+      summary: Get global statistics
+      tags: *a13
+  /events/{eventId}/rsvp-config:
+    get:
+      operationId: RsvpController_getConfig
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: RSVP config retrieved successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  eventId: 550e8400-e29b-41d4-a716-446655440000
+                  allowRsvp: true
+                  rsvpDeadlineDays: 0
+                  revocationWindowDays: 20
+                  updatedAt: 2025-12-13T21:00:00.000Z
+        "404":
+          description: Event not found
+      security: &a14
+        - bearer: []
+      summary: Get RSVP configuration for an event
+      tags: &a15
+        - rsvp
+    post:
+      operationId: RsvpController_createConfig
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRsvpConfigDto"
+      responses:
+        "201":
+          description: RSVP config created successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  eventId: 550e8400-e29b-41d4-a716-446655440000
+                  allowRsvp: true
+                  rsvpDeadlineDays: 5
+                  revocationWindowDays: 20
+        "404":
+          description: Event not found
+      security: *a14
+      summary: Create/Update RSVP configuration
+      tags: *a15
+  /events/{eventId}/confirmations:
+    get:
+      operationId: RsvpController_getConfirmations
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Confirmations retrieved successfully
+          content:
+            application/json:
+              schema:
+                example:
+                  eventId: 550e8400-e29b-41d4-a716-446655440000
+                  total: 150
+                  confirmed: 120
+                  declined: 10
+                  pending: 20
+                  confirmationRate: 80
+                  guests: []
+        "404":
+          description: Event not found
+      security: *a14
+      summary: Get RSVP confirmations list
+      tags: *a15
+  /exports/guests/{eventId}:
+    get:
+      operationId: ExportsController_exportGuests
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: CSV generated successfully
+      security: &a16
+        - bearer: []
+      summary: Export guests list (CSV)
+      tags: &a17
+        - exports
+  /exports/rsvp/{eventId}:
+    get:
+      operationId: ExportsController_exportRsvp
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: CSV generated successfully
+      security: *a16
+      summary: Export RSVP responses (CSV)
+      tags: *a17
+  /exports/attendance/{eventId}:
+    get:
+      operationId: ExportsController_exportAttendance
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: CSV generated successfully
+      security: *a16
+      summary: Export attendance scans (CSV)
+      tags: *a17
+  /metrics/events/{eventId}:
+    get:
+      operationId: MetricsController_getMetrics
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Metrics calculated successfully
+      security: &a18
+        - bearer: []
+      summary: Get metrics for a specific event
+      tags: &a19
+        - metrics
+  /metrics/global:
+    get:
+      operationId: MetricsController_getGlobalMetrics
+      parameters: []
+      responses:
+        "200":
+          description: Global metrics calculated successfully
+      security: *a18
+      summary: Get global KPIs across all events
+      tags: *a19
+  /privacy/anonymize/{eventId}:
+    post:
+      operationId: PrivacyController_anonymizeEvent
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "201":
+          description: ""
+      tags: &a20
+        - Privacy
+  /privacy/event/{eventId}:
+    delete:
+      operationId: PrivacyController_deleteEvent
+      parameters:
+        - name: eventId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a20
+  /privacy/run-retention:
+    post:
+      operationId: PrivacyController_runRetention
+      parameters: []
+      responses:
+        "201":
+          description: ""
+      tags: *a20
+info:
+  title: Monotickets Platinum API
+  description: API oficial para Monotickets Platinum (invited events, RSVPs,
+    delivery y scanner).
+  version: 1.0.0
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+  schemas:
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+          description: User email
+          example: planner@monotickets.com
+        password:
+          type: string
+          description: User password
+          example: password123
+      required:
+        - email
+        - password
+    ScanValidationDto:
+      type: object
+      properties:
+        qrToken:
+          type: string
+          description: QR token to validate
+          example: EV2025-001-GUEST-123-ABC
+        eventId:
+          type: string
+          description: Event ID
+          example: 550e8400-e29b-41d4-a716-446655440000
+        scannedBy:
+          type: string
+          description: Staff user ID who is scanning
+          example: 550e8400-e29b-41d4-a716-446655440001
+        scannedAt:
+          type: string
+          description: Timestamp when scan occurred
+          example: 2025-12-05T15:30:00.000Z
+      required:
+        - qrToken
+        - eventId
+        - scannedBy
+        - scannedAt
+    ConfirmPartialEntryDto:
+      type: object
+      properties:
+        invitationId:
+          type: string
+          description: Invitation ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+        enteredNames:
+          description: Array of names of people who are entering
+          example:
+            - Juan Pérez
+            - María García
+          type: array
+          items:
+            type: string
+        scannedBy:
+          type: string
+          description: ID of the staff member scanning
+          example: 456e7890-e89b-12d3-a456-426614174111
+      required:
+        - invitationId
+        - enteredNames
+        - scannedBy
+    OfflineScanDto:
+      type: object
+      properties:
+        id:
+          type: string
+        qrToken:
+          type: string
+        eventId:
+          type: string
+        scannedBy:
+          type: string
+        scannedAt:
+          type: string
+      required:
+        - id
+        - qrToken
+        - eventId
+        - scannedBy
+        - scannedAt
+    SyncScansDto:
+      type: object
+      properties:
+        scans:
+          description: Array of offline scans to sync
+          type: array
+          items:
+            $ref: "#/components/schemas/OfflineScanDto"
+      required:
+        - scans
+    CreateEventDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Event name
+          example: Boda de Juan y María
+        date:
+          type: string
+          description: Event date
+          example: 2025-12-25T18:00:00.000Z
+        location:
+          type: string
+          description: Event location
+          example: Jardín Las Rosas, CDMX
+        description:
+          type: string
+          description: Event description
+          example: Celebración de nuestra boda
+        plannerId:
+          type: string
+          description: Planner user ID
+          example: 550e8400-e29b-41d4-a716-446655440000
+      required:
+        - name
+        - date
+        - plannerId
+    UpdateEventDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Event name
+          example: Boda de Juan y María
+        date:
+          type: string
+          description: Event date
+          example: 2025-12-25T18:00:00.000Z
+        location:
+          type: string
+          description: Event location
+          example: Jardín Las Rosas, CDMX
+        description:
+          type: string
+          description: Event description
+          example: Celebración de nuestra boda
+        plannerId:
+          type: string
+          description: Planner user ID
+          example: 550e8400-e29b-41d4-a716-446655440000
+    CreateGuestDto:
+      type: object
+      properties:
+        fullName:
+          type: string
+          description: Guest full name
+          example: Juan Pérez García
+        phone:
+          type: string
+          description: Guest phone number
+          example: +52 55 1234 5678
+        email:
+          type: string
+          description: Guest email
+          example: juan.perez@example.com
+        guestCount:
+          type: number
+          description: Number of guests (including main guest)
+          example: 2
+          minimum: 1
+          maximum: 10
+        rsvpStatus:
+          type: string
+          description: RSVP status
+          enum: &a21
+            - PENDING
+            - CONFIRMED
+            - DECLINED
+          example: PENDING
+      required:
+        - fullName
+        - guestCount
+    BulkUploadDto:
+      type: object
+      properties:
+        guests:
+          description: Array of guests to create
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateGuestDto"
+      required:
+        - guests
+    UpdateGuestDto:
+      type: object
+      properties:
+        fullName:
+          type: string
+          description: Guest full name
+          example: Juan Pérez García
+        phone:
+          type: string
+          description: Guest phone number
+          example: +52 55 1234 5678
+        email:
+          type: string
+          description: Guest email
+          example: juan.perez@example.com
+        guestCount:
+          type: number
+          description: Number of guests (including main guest)
+          example: 2
+          minimum: 1
+          maximum: 10
+        rsvpStatus:
+          type: string
+          description: RSVP status
+          enum: *a21
+          example: PENDING
+    GenerateInvitationsDto:
+      type: object
+      properties:
+        guestIds:
+          description: Array of guest IDs to generate invitations for
+          example:
+            - 550e8400-e29b-41d4-a716-446655440000
+          type: array
+          items:
+            type: string
+      required:
+        - guestIds
+    SendInvitationsDto:
+      type: object
+      properties:
+        invitationIds:
+          description: Array of invitation IDs to send
+          example:
+            - 550e8400-e29b-41d4-a716-446655440000
+          type: array
+          items:
+            type: string
+        method:
+          type: string
+          description: Delivery method
+          enum:
+            - SMS
+            - EMAIL
+            - WHATSAPP
+          example: SMS
+      required:
+        - invitationIds
+    SendDeliveryDto:
+      type: object
+      properties:
+        invitationIds:
+          description: Array of Invitation IDs to send
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
+          type: array
+          items:
+            type: string
+      required:
+        - invitationIds
+    RsvpDto:
+      type: object
+      properties:
+        qrToken:
+          type: string
+          description: QR token from invitation
+          example: EV-550E8400-E29B41D4-ABC123-DEF456
+        status:
+          type: string
+          description: RSVP status
+          enum:
+            - PENDING
+            - CONFIRMED
+            - DECLINED
+          example: CONFIRMED
+      required:
+        - qrToken
+        - status
+    UpdateRsvpConfigDto:
+      type: object
+      properties:
+        allowRsvp:
+          type: boolean
+          description: Allow RSVP confirmations
+        rsvpDeadlineDays:
+          type: number
+          description: Days before event to close RSVP (0 = Event Day)
+        revocationWindowDays:
+          type: number
+          description: Days after receipt to allow revocation

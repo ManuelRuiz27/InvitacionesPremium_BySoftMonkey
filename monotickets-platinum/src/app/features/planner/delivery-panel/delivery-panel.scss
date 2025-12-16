@@ -20,29 +20,85 @@
         top: 0;
         z-index: 10;
 
-        h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 700;
-            color: $platinum;
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            .eyebrow {
+                text-transform: uppercase;
+                letter-spacing: 0.2em;
+                color: $dark-silver;
+                font-size: 11px;
+                margin: 0;
+            }
+
+            h2 {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 700;
+                color: $platinum;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+
+                mat-icon {
+                    color: $gold;
+                    font-size: 28px;
+                    width: 28px;
+                    height: 28px;
+                }
+            }
+
+            .hint {
+                margin: 0;
+                color: $silver;
+                font-size: 13px;
+            }
+        }
+
+        .header-actions {
             display: flex;
             align-items: center;
             gap: 12px;
 
-            mat-icon {
+            button[mat-stroked-button] {
+                border-color: $gold;
                 color: $gold;
-                font-size: 28px;
-                width: 28px;
-                height: 28px;
+
+                mat-icon {
+                    margin-right: 6px;
+                }
+
+                &:hover {
+                    background: rgba(212, 175, 55, 0.08);
+                }
             }
         }
+    }
 
-        button {
-            color: $silver;
+    .alert-banner {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 32px;
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid #ef4444;
+        color: #fecaca;
 
-            &:hover {
-                color: $platinum;
-            }
+        mat-icon {
+            color: #ef4444;
+        }
+
+        p {
+            margin: 0;
+            font-weight: 600;
+            color: #fecaca;
+        }
+
+        span {
+            font-size: 13px;
+            color: #fca5a5;
         }
     }
 
@@ -52,6 +108,11 @@
         gap: 20px;
         padding: 32px;
         background: $soft-black;
+        transition: opacity 0.2s ease;
+
+        &.loading {
+            opacity: 0.6;
+        }
 
         .stat-card {
             background: $deep-black;
@@ -108,6 +169,81 @@
         }
     }
 
+    .channel-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        padding: 0 32px 24px;
+        background: $primary-black;
+
+        .channel-card,
+        .history-card {
+            background: $deep-black;
+            border: 1px solid $soft-black;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .channel-card {
+            .channel-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 12px;
+
+                mat-icon {
+                    color: $gold;
+                }
+            }
+
+            .channel-body {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+
+                p {
+                    margin: 0;
+                    color: $silver;
+
+                    span {
+                        font-weight: 700;
+                        color: $platinum;
+                        margin-right: 6px;
+                    }
+                }
+            }
+        }
+
+        .history-card {
+            h3 {
+                margin: 0 0 12px;
+                font-size: 16px;
+                color: $platinum;
+            }
+
+            ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            li {
+                display: flex;
+                justify-content: space-between;
+                font-size: 13px;
+                color: $silver;
+
+                span:first-child {
+                    color: $gold;
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+
     .actions-section {
         padding: 24px 32px;
         background: $primary-black;
@@ -115,6 +251,11 @@
         display: flex;
         align-items: center;
         gap: 20px;
+        flex-wrap: wrap;
+
+        .method-selector {
+            min-width: 240px;
+        }
 
         button {
             background: $gold;
@@ -144,6 +285,10 @@
         .selection-info {
             color: $silver;
             font-size: 14px;
+
+            &.warning {
+                color: #fbbf24;
+            }
         }
     }
 
@@ -157,6 +302,21 @@
             color: $platinum;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+
+            button {
+                color: $gold;
+
+                mat-icon {
+                    margin-right: 4px;
+                }
+            }
         }
 
         .loading-container {
@@ -215,30 +375,12 @@
                     margin-right: 4px;
                 }
 
-                &.chip-sms {
-                    background: #3b82f6;
-                    color: white;
-                }
-
-                &.chip-whatsapp {
-                    background: #10b981;
-                    color: white;
-                }
-
-                &.chip-sent {
-                    background: #10b981;
-                    color: white;
-                }
-
-                &.chip-failed {
-                    background: #ef4444;
-                    color: white;
-                }
-
-                &.chip-pending {
-                    background: #f59e0b;
-                    color: white;
-                }
+                &.chip-sms { background: #3b82f6; color: white; }
+                &.chip-whatsapp { background: #10b981; color: white; }
+                &.chip-success { background: #10b981; color: white; }
+                &.chip-error { background: #ef4444; color: white; }
+                &.chip-warning { background: #f59e0b; color: white; }
+                &.chip-default { background: #475569; color: white; }
             }
 
             .error-message {
@@ -254,6 +396,16 @@
                 &:hover {
                     color: $light-gold;
                 }
+            }
+        }
+
+        .guest-cell {
+            display: flex;
+            flex-direction: column;
+
+            span {
+                font-size: 12px;
+                color: $dark-silver;
             }
         }
 
@@ -275,6 +427,12 @@
             p {
                 margin: 0;
                 font-size: 16px;
+
+                &.hint {
+                    font-size: 13px;
+                    color: $silver;
+                    margin-top: 8px;
+                }
             }
         }
     }
@@ -291,6 +449,7 @@
         .actions-section {
             flex-direction: column;
             align-items: stretch;
+            gap: 12px;
 
             button {
                 width: 100%;

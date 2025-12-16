@@ -49,6 +49,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/planner/dashboard/dashboard').then(m => m.PlannerDashboard)
             },
             {
+                path: 'settings',
+                loadComponent: () => import('./features/planner/settings/planner-settings').then(m => m.PlannerSettingsComponent)
+            },
+            {
                 path: 'events',
                 loadComponent: () => import('./features/planner/events-list/events-list').then(m => m.EventsList)
             },
@@ -93,12 +97,28 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/planner/scans-panel/scans-panel').then(m => m.ScansPanel)
             },
             {
+                path: 'events/:eventId/metrics',
+                loadComponent: () => import('./features/planner/event-metrics/event-metrics').then(m => m.EventMetrics)
+            },
+            {
                 path: 'events/:eventId/rsvp-generator',
                 loadComponent: () => import('./features/planner/rsvp-generator/rsvp-generator').then(m => m.RsvpGenerator)
             },
             {
                 path: 'events/:eventId/host-links',
                 loadComponent: () => import('./features/planner/host-link-generator/host-link-generator').then(m => m.HostLinkGenerator)
+            },
+            {
+                path: 'events/:eventId/templates',
+                loadComponent: () => import('./features/planner/template-catalog/template-catalog').then(m => m.TemplateCatalog)
+            },
+            {
+                path: 'events/:eventId/templates/qr',
+                loadComponent: () => import('./features/planner/pdf-qr-placement/pdf-qr-placement').then(m => m.PdfQrPlacement)
+            },
+            {
+                path: 'events/:eventId/premium',
+                loadComponent: () => import('./features/planner/premium-editor/premium-editor').then(m => m.PremiumEditor)
             }
         ]
     },

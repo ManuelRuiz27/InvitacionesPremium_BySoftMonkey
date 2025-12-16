@@ -4,7 +4,6 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { User, UserRole } from '../models';
-import { MockDataService } from './mock-data.service';
 
 interface LoginRequest {
     email: string;
@@ -23,12 +22,10 @@ export class AuthService {
     private currentUserSubject: BehaviorSubject<User | null>;
     public currentUser$: Observable<User | null>;
     private tokenKey = 'auth_token';
-    private useMockData = false; // Toggle to switch between mock and real API
 
     constructor(
         private http: HttpClient,
-        private router: Router,
-        private mockDataService: MockDataService
+        private router: Router
     ) {
         const storedUser = this.getStoredUser();
         this.currentUserSubject = new BehaviorSubject<User | null>(storedUser);
@@ -48,16 +45,6 @@ export class AuthService {
     }
 
     login(email: string, password: string): Observable<LoginResponse> {
-        if (this.useMockData) {
-            return this.mockDataService.login(email, password).pipe(
-                tap(response => {
-                    this.setToken(response.token);
-                    this.setUser(response.user);
-                    this.currentUserSubject.next(response.user);
-                })
-            );
-        }
-
         return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, { email, password })
             .pipe(
                 tap(response => {

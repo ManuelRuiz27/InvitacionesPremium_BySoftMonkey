@@ -1,0 +1,230 @@
+<div class="premium-editor" [formGroup]="configForm">
+  <mat-card class="header-card">
+    <div>
+      <p class="eyebrow">Bloque 1.7</p>
+      <h1>Editor Premium</h1>
+      <p>Personaliza la landing premium. Puedes guardar los cambios cuando quieras.</p>
+    </div>
+    <div class="header-actions">
+      <span class="timestamp" *ngIf="lastSaved as saved">Último guardado: {{ saved | date:'short' }}</span>
+      <button mat-raised-button color="primary" (click)="save()" [disabled]="saving || loading">
+        <mat-icon *ngIf="!saving">save</mat-icon>
+        <span>{{ saving ? 'Guardando...' : 'Guardar cambios' }}</span>
+      </button>
+    </div>
+  </mat-card>
+
+  @if (loading) {
+  <div class="loading-state">
+    <mat-spinner></mat-spinner>
+    <p>Cargando configuración premium...</p>
+  </div>
+  } @else {
+  <div class="editor-grid">
+    <div class="config-column">
+      <mat-accordion multi>
+        <mat-expansion-panel expanded>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Identidad visual</mat-panel-title>
+            <mat-panel-description>Paletas y efectos</mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="section-grid">
+        <div class="field-group">
+          <label>Efecto</label>
+          <mat-radio-group formControlName="effect">
+            <mat-radio-button value="FLIPBOOK">Flipbook</mat-radio-button>
+            <mat-radio-button value="PERGAMINO">Pergamino</mat-radio-button>
+          </mat-radio-group>
+          <mat-slide-toggle formControlName="reduceMotion" matTooltip="Se activará automáticamente si el visitante usa 'prefers-reduced-motion'">Activar “Reducir animaciones”</mat-slide-toggle>
+        </div>
+          <div class="field-group">
+            <label>Paleta</label>
+            <div class="palette-inputs">
+              <mat-form-field appearance="outline">
+                <mat-label>Primario</mat-label>
+                <input matInput type="color" formControlName="palettePrimary">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Secundario</mat-label>
+                <input matInput type="color" formControlName="paletteSecondary">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Acento</mat-label>
+                <input matInput type="color" formControlName="paletteAccent">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Fondo</mat-label>
+                <input matInput type="color" formControlName="paletteBackground">
+              </mat-form-field>
+            </div>
+            <div class="presets">
+              <mat-chip-set>
+                @for (preset of palettePresets; track preset.name) {
+                <mat-chip (click)="applyPreset(preset)">
+                  {{ preset.name }}
+                </mat-chip>
+                }
+              </mat-chip-set>
+              <div class="palette-errors" *ngIf="configForm.errors?.['paletteContrast']">
+                <mat-icon>warning</mat-icon>
+                <span>{{ configForm.errors?.['paletteContrast'].join(', ') }} (mínimo WCAG AA 4.5:1)</span>
+              </div>
+            </div>
+          </div>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel expanded>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Portada</mat-panel-title>
+            <mat-panel-description>Título, subtítulo e imagen</mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="section-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Título</mat-label>
+              <input matInput formControlName="coverTitle" placeholder="Ej. Boda de Daniela & Luis">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Subtítulo</mat-label>
+              <input matInput formControlName="coverSubtitle" placeholder="Sábado 12 de abril — Hacienda San José">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Imagen principal (URL)</mat-label>
+              <input matInput formControlName="coverImageUrl" placeholder="https://">
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Historia</mat-panel-title>
+            <mat-panel-description>Texto y fotos pequeñas</mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-form-field appearance="outline">
+            <mat-label>Texto</mat-label>
+            <textarea matInput rows="4" formControlName="storyText" placeholder="Cuenta la historia del evento, agradecimiento, etc."></textarea>
+          </mat-form-field>
+          <div class="section-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Foto 1 (URL)</mat-label>
+              <input matInput formControlName="storyPhoto1">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Foto 2 (URL)</mat-label>
+              <input matInput formControlName="storyPhoto2">
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Galería</mat-panel-title>
+            <mat-panel-description>Lista de imágenes</mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-slide-toggle formControlName="galleryEnabled">Activar galería</mat-slide-toggle>
+          <mat-form-field appearance="outline">
+            <mat-label>URLs (una por línea, máx 5)</mat-label>
+            <textarea matInput rows="3" formControlName="galleryImages"></textarea>
+          </mat-form-field>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Ubicación</mat-panel-title>
+            <mat-panel-description>Dirección y mapa</mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-slide-toggle formControlName="locationEnabled">Mostrar sección de ubicación</mat-slide-toggle>
+          <mat-form-field appearance="outline">
+            <mat-label>Dirección</mat-label>
+            <textarea matInput rows="2" formControlName="locationAddress"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Mapa (URL embebido)</mat-label>
+            <input matInput formControlName="locationMapUrl" placeholder="https://maps.google.com/...">
+          </mat-form-field>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Información adicional</mat-panel-title>
+            <mat-panel-description>Mesa de regalos, dress code, etc.</mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="section-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Título bloque 1</mat-label>
+              <input matInput formControlName="info1Title" placeholder="Mesa de regalos">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Descripción bloque 1</mat-label>
+              <textarea matInput rows="2" formControlName="info1Details"></textarea>
+            </mat-form-field>
+          </div>
+          <div class="section-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Título bloque 2</mat-label>
+              <input matInput formControlName="info2Title" placeholder="Dress code / Agenda">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Descripción bloque 2</mat-label>
+              <textarea matInput rows="2" formControlName="info2Details"></textarea>
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>RSVP</mat-panel-title>
+            <mat-panel-description>Mensaje y copy del botón</mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-form-field appearance="outline">
+            <mat-label>Mensaje</mat-label>
+            <textarea matInput rows="2" formControlName="rsvpMessage"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Texto del botón</mat-label>
+            <input matInput formControlName="rsvpButton">
+          </mat-form-field>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Acceso / QR</mat-panel-title>
+            <mat-panel-description>Placeholder antes del evento</mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-form-field appearance="outline">
+            <mat-label>Placeholder</mat-label>
+            <textarea matInput rows="2" formControlName="accessPlaceholder"></textarea>
+          </mat-form-field>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+
+    <div class="preview-column">
+      <mat-card class="preview-card" [ngStyle]="previewPalette">
+        <div class="preview-cover">
+          <p class="effect-tag">{{ configForm.value.effect === 'FLIPBOOK' ? 'Flipbook' : 'Pergamino' }}</p>
+          <h2>{{ configForm.value.coverTitle || 'Nombre del evento' }}</h2>
+          <p>{{ configForm.value.coverSubtitle || 'Fecha y lugar' }}</p>
+        </div>
+        <div class="preview-body">
+          <p>{{ configForm.value.storyText || 'Aquí verás la historia del evento en la landing premium.' }}</p>
+          <div class="preview-gallery" *ngIf="configForm.value.galleryEnabled && galleryPreview.length">
+            <span *ngFor="let img of galleryPreview">
+              <mat-icon>image</mat-icon> Img
+            </span>
+          </div>
+          <div class="preview-info" *ngIf="configForm.value.info1Title || configForm.value.info1Details">
+            <h4>{{ configForm.value.info1Title || 'Bloque informativo' }}</h4>
+            <p>{{ configForm.value.info1Details || 'Usa este espacio para dress code, mesa de regalos o agenda.' }}</p>
+          </div>
+        </div>
+        <div class="preview-rsvp">
+          <p>{{ configForm.value.rsvpMessage }}</p>
+          <button mat-raised-button color="primary">{{ configForm.value.rsvpButton }}</button>
+          <small>{{ configForm.value.accessPlaceholder }}</small>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+  }
+</div>

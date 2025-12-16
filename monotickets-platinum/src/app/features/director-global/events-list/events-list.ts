@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { DirectorService } from '../services/director.service';
 import { Event, EventType, EventStatus } from '../../../core/models';
+import { getEventStatusMeta } from '../../../shared/utils/status.utils';
 
 @Component({
   selector: 'app-events-list',
@@ -86,29 +87,11 @@ export class EventsList implements OnInit {
   }
 
   getStatusColor(status: EventStatus): string {
-    switch (status) {
-      case EventStatus.PUBLISHED:
-        return 'primary';
-      case EventStatus.DRAFT:
-        return 'accent';
-      case EventStatus.CLOSED:
-        return 'warn';
-      default:
-        return '';
-    }
+    return getEventStatusMeta(status).className;
   }
 
   getStatusLabel(status: EventStatus): string {
-    switch (status) {
-      case EventStatus.PUBLISHED:
-        return 'Publicado';
-      case EventStatus.DRAFT:
-        return 'Borrador';
-      case EventStatus.CLOSED:
-        return 'Cerrado';
-      default:
-        return status;
-    }
+    return getEventStatusMeta(status).label;
   }
 
   getTypeLabel(type: EventType): string {

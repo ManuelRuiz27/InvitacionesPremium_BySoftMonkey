@@ -12,6 +12,10 @@ export interface Event {
     templateType: TemplateType;
     templateVariant?: string;
     isPremium: boolean;
+    guestCountDefault?: number;
+    allowPartialEntry?: boolean;
+    rsvpFormUrl?: string;
+    hostFormUrl?: string;
     status: EventStatus;
     createdAt: Date;
     updatedAt: Date;
@@ -36,7 +40,8 @@ export enum TemplateType {
 export enum EventStatus {
     DRAFT = 'DRAFT',
     PUBLISHED = 'PUBLISHED',
-    CLOSED = 'CLOSED'
+    CLOSED = 'CLOSED',
+    BLOCKED = 'BLOCKED'
 }
 
 // Template Model

@@ -7,7 +7,7 @@
         <div class="actions">
             <button mat-raised-button color="accent" (click)="uploadCSV()">
                 <mat-icon>upload_file</mat-icon>
-                Upload CSV
+                Subir CSV
             </button>
             <button mat-raised-button color="primary" (click)="createGuest()">
                 <mat-icon>person_add</mat-icon>
@@ -20,7 +20,7 @@
         <div class="filters-grid">
             <mat-form-field>
                 <mat-label>Buscar</mat-label>
-                <input matInput [formControl]="searchControl" placeholder="Nombre o teléfono">
+                <input matInput [formControl]="searchControl" placeholder="Nombre, teléfono o email">
                 <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
 
@@ -51,6 +51,68 @@
         </div>
     </mat-card>
 
+    @if (eventStats) {
+    <mat-card class="stats-card">
+        <div class="stat" title="Invitaciones generadas">
+            <span class="label">Invitaciones</span>
+            <strong>{{ eventStats.invitationsGenerated }}</strong>
+        </div>
+        <div class="stat">
+            <span class="label">Confirmados</span>
+            <strong>{{ eventStats.confirmations }}</strong>
+        </div>
+        <div class="stat">
+            <span class="label">Pendientes</span>
+            <strong>{{ eventStats.pending }}</strong>
+        </div>
+        <div class="stat">
+            <span class="label">Declinados</span>
+            <strong>{{ eventStats.declined }}</strong>
+        </div>
+        <div class="stat">
+            <span class="label">Escaneos</span>
+            <strong>{{ eventStats.scanned }}</strong>
+        </div>
+    </mat-card>
+    } @else if (statsLoading) {
+    <mat-card class="stats-card loading">
+        <mat-spinner diameter="32"></mat-spinner>
+        <p>Actualizando métricas...</p>
+    </mat-card>
+    }
+
+    <div class="bulk-actions" [class.disabled]="!hasSelection()">
+        <div class="selection-info">
+            <mat-icon>checklist</mat-icon>
+            @if (hasSelection()) {
+            <span>{{ selectionCount() }} seleccionados ({{ selectedWithInvitationCount() }} con invitación)</span>
+            } @else {
+            <span>Selecciona invitados para acciones masivas</span>
+            }
+        </div>
+        <div class="bulk-buttons">
+            <button mat-stroked-button color="primary" (click)="performBulkAction('confirm')" [disabled]="!hasSelection() || bulkProcessing">
+                <mat-icon>thumb_up</mat-icon>
+                Confirmar
+            </button>
+            <button mat-stroked-button color="accent" (click)="performBulkAction('decline')" [disabled]="!hasSelection() || bulkProcessing">
+                <mat-icon>thumb_down</mat-icon>
+                Declinar
+            </button>
+            <button mat-stroked-button (click)="performBulkAction('resend')" [disabled]="selectedWithInvitationCount() === 0 || bulkProcessing">
+                <mat-icon>send</mat-icon>
+                Reenviar
+            </button>
+            <button mat-stroked-button color="warn" (click)="performBulkAction('revoke')" [disabled]="selectedWithInvitationCount() === 0 || bulkProcessing">
+                <mat-icon>block</mat-icon>
+                Revocar
+            </button>
+            @if (bulkProcessing) {
+            <mat-spinner diameter="24"></mat-spinner>
+            }
+        </div>
+    </div>
+
     <mat-card>
         @if (loading) {
         <div class="loading-container">
@@ -60,10 +122,39 @@
         } @else {
         <div class="table-container">
             <table mat-table [dataSource]="guests" class="guests-table">
+                <ng-container matColumnDef="select">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <mat-checkbox
+                            [checked]="areAllSelectedOnPage()"
+                            [indeterminate]="hasSelection() && !areAllSelectedOnPage()"
+                            (change)="toggleSelectAll($event)">
+                        </mat-checkbox>
+                    </th>
+                    <td mat-cell *matCellDef="let guest">
+                        <mat-checkbox
+                            [checked]="isSelected(guest)"
+                            (change)="toggleGuestSelection(guest, $event)"
+                            [disabled]="processingGuestId === guest.id || editingGuestId === guest.id">
+                        </mat-checkbox>
+                    </td>
+                </ng-container>
+
                 <ng-container matColumnDef="fullName">
                     <th mat-header-cell *matHeaderCellDef>Nombre</th>
                     <td mat-cell *matCellDef="let guest">
-                        <strong>{{ guest.fullName }}</strong>
+                        @if (isEditing(guest.id)) {
+                        <mat-form-field appearance="outline" class="inline-field">
+                            <mat-label>Nombre completo</mat-label>
+                            <input matInput [(ngModel)]="draftGuest.fullName" placeholder="Nombre del invitado">
+                        </mat-form-field>
+                        } @else {
+                        <div class="cell-main">
+                            <strong>{{ guest.fullName }}</strong>
+                            <button mat-icon-button class="ghost" matTooltip="Editar inline" (click)="startInlineEdit(guest)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                        </div>
+                        }
                     </td>
                 </ng-container>
 
@@ -75,6 +166,38 @@
                 <ng-container matColumnDef="email">
                     <th mat-header-cell *matHeaderCellDef>Email</th>
                     <td mat-cell *matCellDef="let guest">{{ guest.email || '-' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="guestCount">
+                    <th mat-header-cell *matHeaderCellDef>Invitados</th>
+                    <td mat-cell *matCellDef="let guest">
+                        @if (isEditing(guest.id)) {
+                        <div class="guest-count-editor">
+                            <button mat-icon-button type="button" (click)="updateDraftGuestCount(-1)">
+                                <mat-icon>remove</mat-icon>
+                            </button>
+                            <input type="number" min="1" [(ngModel)]="draftGuest.guestCount">
+                            <button mat-icon-button type="button" (click)="updateDraftGuestCount(1)">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                        </div>
+                        } @else {
+                        <span class="count-chip">{{ guest.guestCount || 1 }}</span>
+                        }
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="invitation">
+                    <th mat-header-cell *matHeaderCellDef>Invitación</th>
+                    <td mat-cell *matCellDef="let guest">
+                        @if (guest.invitationStatus) {
+                        <mat-chip [ngClass]="getInvitationMeta(guest).className">
+                            {{ getInvitationMeta(guest).label }}
+                        </mat-chip>
+                        } @else {
+                        <span class="muted">Sin generar</span>
+                        }
+                    </td>
                 </ng-container>
 
                 <ng-container matColumnDef="rsvpStatus">
@@ -93,15 +216,71 @@
                     </td>
                 </ng-container>
 
+                <ng-container matColumnDef="notes">
+                    <th mat-header-cell *matHeaderCellDef>Notas</th>
+                    <td mat-cell *matCellDef="let guest">
+                        @if (isEditing(guest.id)) {
+                        <mat-form-field appearance="outline" class="notes-field">
+                            <mat-label>Notas rápidas</mat-label>
+                            <textarea matInput rows="2" placeholder="Alergias, acompañantes, etc." [(ngModel)]="draftGuest.notes"></textarea>
+                        </mat-form-field>
+                        } @else {
+                        <span class="note-chip" *ngIf="guest.notes; else emptyNote">{{ guest.notes }}</span>
+                        <ng-template #emptyNote>
+                            <span class="muted">Sin notas</span>
+                        </ng-template>
+                        }
+                    </td>
+                </ng-container>
+
                 <ng-container matColumnDef="actions">
                     <th mat-header-cell *matHeaderCellDef>Acciones</th>
                     <td mat-cell *matCellDef="let guest">
-                        <button mat-icon-button (click)="editGuest(guest.id)" matTooltip="Editar">
-                            <mat-icon>edit</mat-icon>
+                        @if (isEditing(guest.id)) {
+                        <div class="inline-actions">
+                            <button mat-stroked-button color="primary" (click)="saveInlineGuest(guest)" [disabled]="inlineSavingGuestId === guest.id">
+                                <mat-icon>{{ inlineSavingGuestId === guest.id ? 'hourglass_top' : 'check' }}</mat-icon>
+                                Guardar
+                            </button>
+                            <button mat-button type="button" (click)="cancelInlineEdit()">
+                                Cancelar
+                            </button>
+                        </div>
+                        } @else {
+                        <button mat-icon-button [matMenuTriggerFor]="actionsMenu" [disabled]="processingGuestId === guest.id">
+                            <mat-icon>more_vert</mat-icon>
                         </button>
-                        <button mat-icon-button color="warn" (click)="deleteGuest(guest)" matTooltip="Eliminar">
-                            <mat-icon>delete</mat-icon>
-                        </button>
+                        <mat-menu #actionsMenu="matMenu">
+                            <button mat-menu-item (click)="startInlineEdit(guest)">
+                                <mat-icon>edit_note</mat-icon>
+                                <span>Editar inline</span>
+                            </button>
+                            <button mat-menu-item (click)="editGuest(guest.id)">
+                                <mat-icon>open_in_new</mat-icon>
+                                <span>Ver ficha completa</span>
+                            </button>
+                            <button mat-menu-item (click)="confirmGuest(guest)">
+                                <mat-icon>thumb_up</mat-icon>
+                                <span>Confirmar manual</span>
+                            </button>
+                            <button mat-menu-item (click)="declineGuest(guest)">
+                                <mat-icon>thumb_down</mat-icon>
+                                <span>Marcar como declinado</span>
+                            </button>
+                            <button mat-menu-item (click)="resendInvitation(guest)" [disabled]="!guest.invitationId">
+                                <mat-icon>send</mat-icon>
+                                <span>Reenviar invitación</span>
+                            </button>
+                            <button mat-menu-item (click)="revokeInvitation(guest)" [disabled]="!guest.invitationId">
+                                <mat-icon>block</mat-icon>
+                                <span>Revocar invitación</span>
+                            </button>
+                            <button mat-menu-item (click)="deleteGuest(guest)">
+                                <mat-icon>delete</mat-icon>
+                                <span>Eliminar</span>
+                            </button>
+                        </mat-menu>
+                        }
                     </td>
                 </ng-container>
 
@@ -114,7 +293,7 @@
                 <mat-icon>people_outline</mat-icon>
                 <p>No hay invitados</p>
                 <button mat-raised-button color="primary" (click)="createGuest()">
-                    Agregar Primer Invitado
+                    Agregar primer invitado
                 </button>
             </div>
             }

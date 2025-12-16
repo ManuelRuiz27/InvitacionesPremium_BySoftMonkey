@@ -1,0 +1,246 @@
+@import '../../../styles/theme-variables';
+
+$neutral-700: #4b5563;
+$neutral-600: #6b7280;
+$primary-500: #4338ca;
+
+.metrics-container {
+    padding: 24px 32px 48px;
+    background: #f5f5fa;
+    min-height: 100vh;
+
+    @media (max-width: 768px) {
+        padding: 16px;
+    }
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+
+    .back-btn {
+        color: $neutral-700;
+    }
+
+    .header-copy {
+        flex: 1;
+
+        .eyebrow {
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 12px;
+            color: $neutral-600;
+            margin: 0 0 4px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 32px;
+            color: $primary-black;
+        }
+
+        .subtitle {
+            margin: 4px 0 0;
+            color: $neutral-700;
+        }
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        button mat-icon {
+            margin-right: 6px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.loading-state,
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 16px;
+    text-align: center;
+    color: $neutral-700;
+
+    mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 12px;
+    }
+
+    p {
+        margin-bottom: 16px;
+    }
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+
+    .kpi-card {
+        mat-progress-bar {
+            margin-top: 12px;
+            height: 8px;
+            border-radius: 999px;
+        }
+    }
+}
+
+.kpi-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+
+    mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: $primary-500;
+    }
+
+    .kpi-label {
+        margin: 0;
+        color: $neutral-600;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    h3 {
+        margin: 4px 0 0;
+        font-size: 32px;
+
+        &.rate-good {
+            color: #0f9d58;
+        }
+
+        &.rate-warning {
+            color: #f4b400;
+        }
+
+        &.rate-bad {
+            color: #db4437;
+        }
+    }
+}
+
+.kpi-description {
+    margin: 12px 0 0;
+    font-size: 14px;
+    color: $neutral-700;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.attendance-card {
+    mat-card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .attendance-figures {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+
+        .figure-label {
+            margin: 0;
+            color: $neutral-600;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            margin: 4px 0 0;
+            font-size: 32px;
+        }
+    }
+
+    .attendance-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: $neutral-700;
+
+        span {
+            display: block;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 11px;
+            color: $neutral-600;
+        }
+
+        strong {
+            font-size: 18px;
+            color: $primary-black;
+        }
+    }
+}
+
+.alerts-card {
+    mat-chip-listbox,
+    mat-chip-set,
+    .mat-mdc-chip-set {
+        width: 100%;
+    }
+
+    .alert-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        margin-bottom: 8px;
+        background: rgba(255, 193, 7, 0.15);
+        color: #a66a00;
+        font-size: 13px;
+
+        mat-icon {
+            font-size: 18px;
+        }
+    }
+
+    .no-alerts {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        color: $neutral-600;
+
+        mat-icon {
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+    }
+}
+
+.funnel-card {
+    mat-list-item {
+        .value {
+            font-weight: 600;
+            color: $primary-black;
+            text-align: right;
+        }
+    }
+}

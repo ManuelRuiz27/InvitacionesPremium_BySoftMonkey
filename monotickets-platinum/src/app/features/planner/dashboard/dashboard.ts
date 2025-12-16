@@ -6,12 +6,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatListModule } from '@angular/material/list';
+import { MatChipsModule } from '@angular/material/chips';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 
 import { PlannerService, PlannerDashboardMetrics } from '../services/planner.service';
-import { type Event, EventType } from '../../../core/models';
+import { type Event, EventType, EventStatus } from '../../../core/models';
 import { AuthService } from '../../../core/services/auth.service';
+import { getEventStatusMeta } from '../../../shared/utils/status.utils';
 
 @Component({
   selector: 'app-planner-dashboard',
@@ -23,6 +25,7 @@ import { AuthService } from '../../../core/services/auth.service';
     MatIconModule,
     MatProgressSpinnerModule,
     MatListModule,
+    MatChipsModule,
     BaseChartDirective
   ],
   templateUrl: './dashboard.html',
@@ -152,8 +155,16 @@ export class PlannerDashboard implements OnInit {
     this.router.navigate(['/planner/events/new']);
   }
 
+  navigateToSettings(): void {
+    this.router.navigate(['/planner/settings']);
+  }
+
   navigateToEventDetail(eventId: string): void {
     this.router.navigate(['/planner/events', eventId]);
+  }
+
+  getStatusMeta(status?: EventStatus) {
+    return getEventStatusMeta(status);
   }
 
   logout(): void {

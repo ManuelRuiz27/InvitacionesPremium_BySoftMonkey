@@ -1,0 +1,103 @@
+<div class="catalog-container">
+  <div class="header">
+    <div>
+      <p class="eyebrow">Bloque 1.3</p>
+      <h1>Templates PDF con QR</h1>
+      <p>Elige una plantilla preconfigurada o sube tu PDF. Nada se envía sin tu confirmación.</p>
+    </div>
+    <button mat-stroked-button (click)="router.navigate(['/planner/events', eventId])">
+      <mat-icon>arrow_back</mat-icon>
+      Volver al evento
+    </button>
+  </div>
+
+  <mat-card class="upload-card">
+    <div class="upload-content">
+      <div>
+        <h2>Subir mi PDF</h2>
+        <p>Si ya tienes el diseño final, súbelo y coloca el QR en el siguiente paso.</p>
+      </div>
+      <label class="upload-button">
+        <input type="file" accept="application/pdf" (change)="onUploadFile($event)" [disabled]="uploading">
+        <ng-container *ngIf="!uploading; else uploadingTpl">
+          <mat-icon>cloud_upload</mat-icon>
+          <span>Subir PDF</span>
+        </ng-container>
+        <ng-template #uploadingTpl>
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Subiendo...</span>
+        </ng-template>
+      </label>
+    </div>
+  </mat-card>
+
+  <mat-card class="filters-card">
+    <div class="filters">
+      <mat-chip-set class="category-chips" aria-label="Filtrar por tipo">
+        @for (category of categories; track category) {
+        <mat-chip-option
+          [selected]="selectedCategory === category"
+          (click)="selectCategory(category)"
+          disableRipple
+          class="filter-chip">
+          {{ category === 'ALL' ? 'Todos los tipos' : category }}
+        </mat-chip-option>
+        }
+      </mat-chip-set>
+      <mat-form-field appearance="outline">
+        <mat-label>Buscar</mat-label>
+        <input matInput placeholder="Nombre o descripción" (input)="onSearchChange($event.target.value)">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+  </mat-card>
+
+  @if (loading) {
+  <div class="loading">
+    <mat-spinner></mat-spinner>
+    <p>Cargando plantillas...</p>
+  </div>
+  } @else {
+  <div class="templates-grid">
+    @if (filteredTemplates.length === 0) {
+    <div class="empty-state">
+      <mat-icon>style</mat-icon>
+      <p>No hay plantillas para esta categoría.</p>
+    </div>
+    } @else {
+    @for (template of filteredTemplates; track template.id) {
+    <mat-card class="template-card" [class.active]="selectedTemplate?.id === template.id" (click)="selectTemplate(template)">
+      <div class="template-preview">
+        <img [src]="template.previewUrl" [alt]="template.name">
+        <div class="preview-badge">
+          <mat-icon>picture_as_pdf</mat-icon>
+          PDF
+        </div>
+      </div>
+      <div class="template-body">
+        <div class="template-meta">
+          <h3>{{ template.name }}</h3>
+          <mat-chip>{{ template.category || 'General' }}</mat-chip>
+        </div>
+        <p>{{ template.description }}</p>
+      </div>
+    </mat-card>
+    }
+    }
+  </div>
+
+  <mat-card class="cta-card">
+    <div>
+      <h2>¿Listo para personalizar?</h2>
+      <p>Después de elegir podrás colocar el QR exactamente donde lo necesitas.</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="confirmSelection()" [disabled]="!selectedTemplate || saving">
+      <mat-spinner *ngIf="saving" diameter="18"></mat-spinner>
+      <ng-container *ngIf="!saving">
+        <mat-icon>check_circle</mat-icon>
+        Usar esta plantilla
+      </ng-container>
+    </button>
+  </mat-card>
+  }
+</div>

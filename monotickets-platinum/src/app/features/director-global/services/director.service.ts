@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { User, Event } from '../../../core/models';
-import { MockDataService } from '../../../core/services/mock-data.service';
+import { Event } from '../../../core/models';
 
 export interface GlobalMetrics {
     totalEvents: number;
@@ -36,19 +35,13 @@ export interface PlannerListItem {
 })
 export class DirectorService {
     private apiUrl = `${environment.apiUrl}/director`;
-    private useMockData = true; // Toggle to switch between mock and real API
 
     constructor(
-        private http: HttpClient,
-        private mockDataService: MockDataService
+        private http: HttpClient
     ) { }
 
     // Get global metrics
     getGlobalMetrics(startDate?: Date, endDate?: Date): Observable<GlobalMetrics> {
-        if (this.useMockData) {
-            return this.mockDataService.getGlobalMetrics();
-        }
-
         let params: any = {};
         if (startDate) params.startDate = startDate.toISOString();
         if (endDate) params.endDate = endDate.toISOString();
@@ -58,10 +51,6 @@ export class DirectorService {
 
     // Get all planners
     getPlanners(page: number = 1, limit: number = 10): Observable<{ planners: PlannerListItem[], total: number }> {
-        if (this.useMockData) {
-            return this.mockDataService.getPlannersList(page, limit);
-        }
-
         return this.http.get<{ planners: PlannerListItem[], total: number }>(
             `${this.apiUrl}/planners`,
             { params: { page: page.toString(), limit: limit.toString() } }
@@ -70,34 +59,11 @@ export class DirectorService {
 
     // Get planner details with metrics
     getPlannerMetrics(plannerId: string): Observable<PlannerMetrics> {
-        if (this.useMockData) {
-            return this.mockDataService.getPlannerMetrics(plannerId);
-        }
-
         return this.http.get<PlannerMetrics>(`${this.apiUrl}/planners/${plannerId}/metrics`);
     }
 
     // Get all events (global)
     getAllEvents(page: number = 1, limit: number = 10, plannerId?: string): Observable<{ events: Event[], total: number }> {
-        if (this.useMockData) {
-            return this.mockDataService.getEvents().pipe(
-                map(events => {
-                    let filteredEvents = events;
-                    if (plannerId) {
-                        filteredEvents = events.filter(e => e.plannerId === plannerId);
-                    }
-
-                    const start = (page - 1) * limit;
-                    const end = start + limit;
-
-                    return {
-                        events: filteredEvents.slice(start, end),
-                        total: filteredEvents.length
-                    };
-                })
-            );
-        }
-
         let params: any = { page: page.toString(), limit: limit.toString() };
         if (plannerId) params.plannerId = plannerId;
 

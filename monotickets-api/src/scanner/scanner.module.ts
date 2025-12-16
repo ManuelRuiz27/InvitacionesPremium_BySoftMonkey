@@ -3,8 +3,8 @@ import { ScannerController } from './scanner.controller';
 import { ScannerService } from './scanner.service';
 
 @Module({
-    controllers: [ScannerController],
-    providers: [ScannerService],
-    exports: [ScannerService],
+  controllers: [ScannerController],
+  providers: [ScannerService],
+  exports: [ScannerService],
 })
-export class ScannerModule { }
+export class ScannerModule {}

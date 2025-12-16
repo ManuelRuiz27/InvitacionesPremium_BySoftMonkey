@@ -1,0 +1,104 @@
+<div class="settings-container">
+    <div class="page-header">
+        <button mat-icon-button (click)="goBack()" class="back-btn">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-copy">
+            <p class="eyebrow">Configuración del planner</p>
+            <h1>Branding y preferencias</h1>
+            <p class="subtitle" *ngIf="lastUpdated">
+                Última actualización: {{ lastUpdated | date:'short' }}
+            </p>
+        </div>
+        <button mat-raised-button color="primary" (click)="saveSettings()" [disabled]="saving || loading">
+            <mat-icon>check</mat-icon>
+            Guardar cambios
+        </button>
+    </div>
+
+    <div class="loading-state" *ngIf="loading">
+        <mat-spinner></mat-spinner>
+        <p>Recuperando tus preferencias...</p>
+    </div>
+
+    <div class="error-state" *ngIf="!loading && error">
+        <mat-icon color="warn">error</mat-icon>
+        <p>{{ error }}</p>
+        <button mat-stroked-button color="primary" (click)="loadSettings()">Reintentar</button>
+    </div>
+
+    <form class="settings-form" [formGroup]="form" *ngIf="!loading && !error">
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>Preferencias de invitación</mat-card-title>
+                <mat-card-subtitle>Definimos el modo por defecto del flujo “Nueva invitación”.</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="form-row">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Modo preferido</mat-label>
+                        <mat-select formControlName="preferredInviteMode">
+                            <mat-option *ngFor="let option of inviteModes" [value]="option.value">
+                                {{ option.label }}
+                            </mat-option>
+                        </mat-select>
+                        <mat-hint>Siempre podrás cambiarlo dentro de cada evento.</mat-hint>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Logo (URL pública)</mat-label>
+                        <input matInput placeholder="https://..." formControlName="logoUrl">
+                        <mat-hint>Opcional. Se usará en nuevas landings o PDFs.</mat-hint>
+                    </mat-form-field>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>Colores y branding</mat-card-title>
+                <mat-card-subtitle>Estas paletas alimentan los nuevos eventos por defecto.</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="color-grid">
+                    <div class="color-field" *ngFor="let field of ['primary','secondary','accent','background']">
+                        <label>{{ field }}</label>
+                        <input type="color" [formControlName]="field">
+                    </div>
+                </div>
+                <div class="preview-card" [ngStyle]="palettePreviewStyle">
+                    <div class="preview-header">
+                        <span class="pill">Preview</span>
+                        <p>Nada se envía sin tu confirmación</p>
+                    </div>
+                    <h3>Tu invitación ya está lista</h3>
+                    <p>Puedes personalizar después y volver a guardar tus colores favoritos.</p>
+                    <button mat-stroked-button color="primary" type="button">
+                        Ver ejemplo
+                    </button>
+                </div>
+            </mat-card-content>
+            <mat-card-actions>
+                <button mat-button type="button" (click)="resetBranding()">Restablecer colores</button>
+            </mat-card-actions>
+        </mat-card>
+
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>Datos de contacto</mat-card-title>
+                <mat-card-subtitle>Se mostrarán en confirmaciones y recordatorios.</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="form-row">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Email de contacto</mat-label>
+                        <input matInput placeholder="planner@monotickets.com" formControlName="contactEmail">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Teléfono / WhatsApp</mat-label>
+                        <input matInput placeholder="+52 55 1234 5678" formControlName="contactPhone">
+                    </mat-form-field>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </form>
+</div>

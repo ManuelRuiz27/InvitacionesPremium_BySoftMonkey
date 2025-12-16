@@ -1,3 +1,5 @@
+import { InvitationStatus } from './invitation.model';
+
 // Guest Model
 export interface Guest {
     id: string;
@@ -5,6 +7,9 @@ export interface Guest {
     fullName: string;
     phone: string;
     email?: string;
+    guestCount?: number;
+    invitationId?: string;
+    invitationStatus?: InvitationStatus;
     rsvpStatus: RsvpStatus;
     rsvpSource: RsvpSource;
     rsvpAt?: Date;
